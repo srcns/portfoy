@@ -1504,9 +1504,30 @@ function b64(blob) {
   });
 }
 
+/* Ağaç 404 döndüğünde "gerçekten boş depo" ile "yanlış depo/dal ya da eksik izin"
+   durumunu ayırt eder. Böylece yanlış ayarla sessizce boş veri çekilip
+   "Son senkron" yazılması yerine anlaşılır bir hata gösterilir. */
+async function explainEmptyTree() {
+  const c = await gh('GET', '');
+  if (c.status === 404) throw new Error('Depo bulunamadı: ' + CONFIG.repo + ' — "sahip/depo" adını kontrol edin.');
+  if (c.status === 401 || c.status === 403) throw new Error('Depoya erişilemedi (' + c.status + ') — token izinlerini (Contents: Read and write) kontrol edin.');
+  if (!c.ok) throw await ghErr(c);
+  const info = await c.json().catch(() => ({}));
+  if (!info.default_branch) return true;          // hiç commit yok: ilk gönderim oluşturabilir
+  const b = await gh('GET', '/branches/' + encPath(CONFIG.branch));
+  if (!b.ok) throw new Error('"' + CONFIG.branch + '" dalı bulunamadı (deponun varsayılan dalı: ' + info.default_branch + ').');
+  return true;                                     // dal var ama içi boş
+}
+
 async function listRemote() {
   const r = await gh('GET', '/git/trees/' + encPath(CONFIG.branch) + '?recursive=1');
-  if (r.status === 404 || r.status === 409) return [];
+  if (r.status === 404 || r.status === 409) {
+    await explainEmptyTree();
+    return [];
+  }
+  if (r.status === 401 || r.status === 403) {
+    throw new Error('GitHub ' + r.status + ': depo okunamadı — token izinlerini (Contents: Read and write) ve depo adını kontrol edin.');
+  }
   if (!r.ok) throw await ghErr(r);
   const j = await r.json();
   if (j.truncated) throw new Error('Depo ağacı çok büyük.');

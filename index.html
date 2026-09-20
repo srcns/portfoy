@@ -1,0 +1,2627 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="color-scheme" content="light dark">
+<title>Portföy</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+<script>
+try{
+  var t=localStorage.getItem('tema');
+  if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);
+}catch(e){}
+</script>
+<style>
+/* Sıfır animasyon prensibi */
+*, *::before, *::after {
+  box-sizing: border-box;
+  transition: none !important;
+  animation: none !important;
+}
+
+:root {
+  --bg: #ffffff;
+  --fg: #111827;
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;
+  --ln: #e5e7eb;
+  --mut: #6b7280;
+  --pos: #15803d;     /* pozitif yeşil */
+  --neg: #dc2626;     /* negatif kırmızı */
+  --warn: #b45309;    /* uyarı sarı/turuncu */
+  --neu: #111827;     /* nötr koyu */
+  --btn-bg: #f3f4f6;
+  --btn-fg: #111827;
+  --btn-border: #d1d5db;
+  --pri-bg: #111827;
+  --pri-fg: #ffffff;
+  --input-bg: #ffffff;
+  --chip-bg: #f9fafb;
+  --chip-border: #d1d5db;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme=light]) {
+    --bg: #0f1218;
+    --fg: #f9fafb;
+    --card-bg: #181f2a;
+    --card-border: #2d3748;
+    --ln: #2d3748;
+    --mut: #9ca3af;
+    --pos: #22c55e;
+    --neg: #ef4444;
+    --warn: #f59e0b;
+    --neu: #f9fafb;
+    --btn-bg: #263142;
+    --btn-fg: #f9fafb;
+    --btn-border: #3b4758;
+    --pri-bg: #38bdf8;
+    --pri-fg: #0f1218;
+    --input-bg: #181f2a;
+    --chip-bg: #181f2a;
+    --chip-border: #2d3748;
+  }
+}
+
+:root[data-theme=dark] {
+  --bg: #0f1218;
+  --fg: #f9fafb;
+  --card-bg: #181f2a;
+  --card-border: #2d3748;
+  --ln: #2d3748;
+  --mut: #9ca3af;
+  --pos: #22c55e;
+  --neg: #ef4444;
+  --warn: #f59e0b;
+  --neu: #f9fafb;
+  --btn-bg: #263142;
+  --btn-fg: #f9fafb;
+  --btn-border: #3b4758;
+  --pri-bg: #38bdf8;
+  --pri-fg: #0f1218;
+  --input-bg: #181f2a;
+  --chip-bg: #181f2a;
+  --chip-border: #2d3748;
+  color-scheme: dark;
+}
+
+:root[data-theme=light] {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  padding: 10px;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Material Symbols */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  vertical-align: middle;
+  user-select: none;
+}
+
+/* Tüm giriş ve kontroller minimum 16px */
+input, select, textarea, button {
+  font-family: inherit;
+  font-size: 16px;
+  color: inherit;
+  border-radius: 8px;
+}
+
+input:not([type=checkbox]):not([type=radio]), select, textarea {
+  background: var(--input-bg);
+  border: 1px solid var(--btn-border);
+  padding: 8px 12px;
+  min-height: 44px;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--pos);
+  outline-offset: -1px;
+}
+
+/* Metin alanı: tam genişlik, içeriğe göre büyür (JS autoGrow), elle de dikey büyütülebilir */
+textarea {
+  display: block;
+  width: 100%;
+  min-height: 132px;
+  max-height: 60vh;
+  line-height: 1.4;
+  resize: vertical;
+  overflow-y: auto;
+}
+
+/* Kategori seçici (kayıt detayında) */
+.cat-select {
+  width: auto;
+  min-height: 38px;
+  padding: 2px 8px;
+  font-weight: 600;
+  max-width: 100%;
+}
+
+/* Ayar formu alanları */
+.fld {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.fld > span {
+  font-size: 14px;
+  color: var(--mut);
+}
+
+.fld input {
+  width: 100%;
+}
+
+.pat-wrap {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pat-wrap input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Oval köşeli ikon butonlar */
+button, .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 14px;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  border: 1px solid var(--btn-border);
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 8px;
+}
+
+button:active, .btn:active {
+  filter: brightness(0.9);
+}
+
+.icon-btn {
+  min-height: 44px;
+  min-width: 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 8px;
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  color: var(--fg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.icon-btn.btn-primary {
+  background: var(--pri-bg);
+  color: var(--pri-fg);
+  border-color: var(--pri-bg);
+}
+
+.icon-btn-sm {
+  min-height: 36px;
+  min-width: 36px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 6px;
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  color: var(--fg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.icon-btn-sm .material-symbols-outlined {
+  font-size: 18px;
+}
+
+/* Üst Kontrol / Header Çubuğu */
+.top-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+/* Ana ekranda bekleyen değişiklik / eşitleme durumu göstergesi */
+.pending-tag {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.25;
+  padding: 0 8px;
+  color: var(--mut);
+}
+.pending-tag.warn { color: var(--warn); }
+.pending-tag.negatif { color: var(--neg); }
+
+/* Altta Sabit Yüzen Çubuk (Şeffaf zeminli, bordersız) */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg);
+  border: none;
+  border-top: 1px solid var(--ln);
+  box-shadow: none;
+  padding: 8px 12px calc(10px + env(safe-area-inset-bottom, 0px)) 12px;
+  z-index: 100;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* Solid zemin varken alttaki kutulara ayrıca gölge gerekmez */
+.bottom-bar .search-input-wrap,
+.bottom-bar .form-inline {
+  box-shadow: none;
+}
+
+.search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  border-radius: 8px;
+}
+
+.search-input-wrap .material-symbols-outlined {
+  position: absolute;
+  left: 12px;
+  color: var(--mut);
+  pointer-events: none;
+}
+
+#q {
+  width: 100%;
+  padding-left: 42px;
+  padding-right: 38px;
+  border-radius: 8px;
+  background: var(--input-bg);
+  border: 1px solid var(--btn-border);
+}
+
+.btn-clear {
+  position: absolute;
+  right: 4px;
+  min-height: 36px;
+  min-width: 36px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--mut);
+}
+
+/* Filtre ve Bilgi Satırı */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.chips-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.chip-item {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 2px 10px;
+  border-radius: 6px;
+  background: var(--chip-bg);
+  border: 1px solid var(--chip-border);
+  cursor: pointer;
+  user-select: none;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.chip-item input[type=checkbox] {
+  width: 18px;
+  height: 18px;
+  margin: 0 6px 0 0;
+  accent-color: var(--pos);
+  cursor: pointer;
+}
+
+.chip-item:has(input:checked) {
+  border-color: var(--pos);
+  background: var(--card-bg);
+  font-weight: 600;
+}
+
+.results-info {
+  font-size: 15px;
+  color: var(--mut);
+  white-space: nowrap;
+}
+
+/* Tek Satırlık Arama Sonuç Kaydı */
+.row-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  min-height: 48px;
+}
+
+.row-item:hover {
+  border-color: var(--btn-border);
+}
+
+/* Klavye ile seçili satır (↑ ↓) */
+.row-item.active {
+  border-color: var(--pri-bg);
+  box-shadow: inset 0 0 0 1px var(--pri-bg);
+  background: var(--btn-bg);
+}
+
+/* scrollIntoView sabit alt çubuğun arkasında kalmasın */
+.row-item {
+  scroll-margin-top: 12px;
+  scroll-margin-bottom: 88px;
+}
+
+.cat-badge {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  flex-shrink: 0;
+}
+
+.row-title {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row-date {
+  font-size: 14px;
+  color: var(--mut);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.row-counts {
+  display: flex;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Ton Renkleri */
+.pozitif { color: var(--pos); }
+.negatif { color: var(--neg); }
+.uyari { color: var(--warn); }
+.notr { color: var(--neu); }
+
+/* Tek Satırlık Log Maddesi (Sürüklenebilir) */
+.log-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-left: 4px solid;
+  border-radius: 0 6px 6px 0;
+  font-size: 16px;
+  min-height: 44px;
+  cursor: grab;
+  user-select: none;
+}
+
+.log-row:active {
+  cursor: grabbing;
+}
+
+.log-row.dragging {
+  opacity: 0.4;
+}
+
+.log-row.drag-over {
+  border-top: 2px solid var(--pos);
+}
+
+.log-row.pozitif { border-left-color: var(--pos); }
+.log-row.negatif { border-left-color: var(--neg); }
+.log-row.uyari { border-left-color: var(--warn); }
+.log-row.notr { border-left-color: var(--btn-border); }
+
+.log-prefix {
+  font-size: 13px;
+  color: var(--mut);
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: help;
+}
+
+.log-content {
+  flex: 1;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.log-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* Vurgulama */
+mark {
+  background: none;
+  color: inherit;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+/* Detay Ekranı */
+.detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.detail-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.form-inline {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  border-radius: 8px;
+  background: var(--input-bg);
+}
+
+.form-inline input {
+  border: 1px solid var(--btn-border);
+}
+
+/* Sürüklenebilir Kategori Kartları */
+.cat-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  cursor: grab;
+  user-select: none;
+}
+
+.cat-item-row.dragging {
+  opacity: 0.4;
+}
+
+.cat-item-row.drag-over {
+  border-top: 2px solid var(--pos);
+}
+
+.cat-item-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.log-form-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+.mut { color: var(--mut); }
+.row { margin: 8px 0; }
+</style>
+</head>
+<body>
+
+<main id="app">Yükleniyor…</main>
+<noscript>Bu uygulama JavaScript gerektirir.</noscript>
+
+<script>
+"use strict";
+
+/* ===================================================================
+   YAPILANDIRMA
+   - pat/repo/branch/path Ayarlar ekranından girilir ve yalnızca bu
+     tarayıcının localStorage'ında ('portfoy_gh') saklanır; HTML'e yazılmaz.
+   - pat boşsa uygulama "yerel mod"da çalışır (GitHub senkronu kapalı).
+   - Aşağıdaki repo/branch/path yalnızca ayar girilmemişse varsayılandır.
+   =================================================================== */
+const CONFIG = {
+  pat: "",
+  repo: "kullanici/veri-deposu",    // sahip/depo
+  branch: "main",
+  path: "data",
+  chunkBytes: 25 * 1024 * 1024
+};
+
+const GH_KEY = 'portfoy_gh';
+
+function loadGh() {
+  try {
+    const j = JSON.parse(localStorage.getItem(GH_KEY) || 'null');
+    if (j && typeof j === 'object') {
+      ['pat', 'repo', 'branch', 'path'].forEach(k => {
+        if (typeof j[k] === 'string') CONFIG[k] = j[k];
+      });
+    }
+  } catch (e) {}
+}
+
+// CONFIG'i günceller ve localStorage'a yazar. Yazılamazsa false döner.
+function saveGh(o) {
+  Object.assign(CONFIG, o);
+  try {
+    localStorage.setItem(GH_KEY, JSON.stringify({ pat: CONFIG.pat, repo: CONFIG.repo, branch: CONFIG.branch, path: CONFIG.path }));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+loadGh();
+
+/* ===================== UTIL ===================== */
+const $ = s => document.querySelector(s);
+const A = h => { $('#app').innerHTML = h; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// Sürüm 4: kalıcı kategori zaman damgası (cu) alanı eklendi.
+const HVER = 4; // Arama tokenleri + kalıcı log sırası + kategori damgası
+
+const MAP = {'ı':'i','İ':'i','I':'i','ş':'s','Ş':'s','ç':'c','Ç':'c','ğ':'g','Ğ':'g','ö':'o','Ö':'o','ü':'u','Ü':'u','â':'a','Â':'a','î':'i','Î':'i','û':'u','Û':'u'};
+const norm = s => String(s).replace(/[ıİIşŞçÇğĞöÖüÜâÂîÎûÛ]/g, c => MAP[c]).toLowerCase();
+
+// Metni bağımsız kelime/sayı tokenlerine böler
+function tokenize(s) {
+  const set = new Set();
+  if (!s) return set;
+  const words = norm(s).split(/[^a-z0-9]+/g);
+  for (let i = 0; i < words.length; i++) {
+    const w = words[i];
+    if (w) set.add(w);
+  }
+  return set;
+}
+
+const AY = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+const AY_KISA = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+const GUN = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+const p2 = n => n < 10 ? '0' + n : '' + n;
+const fdt = ts => {
+  const d = new Date(ts);
+  return d.getDate() + ' ' + AY[d.getMonth()] + ' ' + d.getFullYear() + ' ' + GUN[d.getDay()] + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes());
+};
+const dmy = ts => {
+  const d = new Date(ts);
+  return p2(d.getDate()) + '.' + p2(d.getMonth() + 1) + '.' + d.getFullYear() + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes());
+};
+const shortDate = ts => {
+  const d = new Date(ts);
+  return d.getDate() + ' ' + AY_KISA[d.getMonth()] + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes());
+};
+const iso = ts => {
+  const d = new Date(ts);
+  return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
+};
+
+let UC = 0;
+const uid = () => Date.now().toString(36) + (UC++).toString(36) + Math.random().toString(36).slice(2, 5);
+const nf = n => n.toLocaleString('tr-TR');
+
+const TONES = {
+  pozitif: { sym: '+', bit: 1, ix: 0, ad: 'Pozitif' },
+  negatif: { sym: '−', bit: 2, ix: 1, ad: 'Negatif' },
+  uyari:   { sym: '!', bit: 4, ix: 2, ad: 'Uyarı' },
+  notr:    { sym: '·', bit: 8, ix: 3, ad: 'Nötr' }
+};
+const TK = ['pozitif', 'negatif', 'uyari', 'notr'];
+
+/* ===================== DURUM ===================== */
+const S = {
+  cats: new Map(), ents: new Map(),
+  segs: {}, dirty: new Set(), dv: {}, nextId: 100001, meta: {},
+  ver: 0, sortedCache: null, sr: null,
+  ui: {
+    q: '',
+    cats: new Set(),
+    shown: 50, sy: 0, navId: null
+  },
+  rendered: 0, nav: -1,
+  edit: null, syncing: false, again: false, err: '', timer: null
+};
+
+const liveCats = () => [...S.cats.values()]
+  .filter(c => !c.del)
+  .sort((a, b) => ((a.order ?? 0) - (b.order ?? 0)) || (a.createdAt - b.createdAt));
+
+const catName = id => (S.cats.get(id) || { name: id }).name;
+const catAlive = id => {
+  const c = S.cats.get(id);
+  return !c || !c.del;
+};
+
+/* ===================== INDEXEDDB ===================== */
+const DB = {
+  db: null,
+  open() {
+    return new Promise((res, rej) => {
+      const r = indexedDB.open('portfoy', 2);
+      r.onupgradeneeded = () => {
+        const d = r.result;
+        if (!d.objectStoreNames.contains('cats')) d.createObjectStore('cats', { keyPath: 'id' });
+        if (!d.objectStoreNames.contains('ents')) d.createObjectStore('ents', { keyPath: 'id' });
+        if (!d.objectStoreNames.contains('logs')) d.createObjectStore('logs', { keyPath: 'id' }).createIndex('eid', 'eid');
+        if (!d.objectStoreNames.contains('meta')) d.createObjectStore('meta', { keyPath: 'key' });
+      };
+      r.onsuccess = () => { DB.db = r.result; res(); };
+      r.onerror = () => rej(r.error);
+    });
+  },
+  all(store) {
+    return new Promise((res, rej) => {
+      const q = DB.db.transaction(store).objectStore(store).getAll();
+      q.onsuccess = () => res(q.result);
+      q.onerror = () => rej(q.error);
+    });
+  },
+  tx(stores, fn) {
+    return new Promise((res, rej) => {
+      const t = DB.db.transaction(stores, 'readwrite');
+      fn(...stores.map(s => t.objectStore(s)));
+      t.oncomplete = () => res();
+      t.onerror = () => rej(t.error);
+      t.onabort = () => rej(t.error);
+    });
+  }
+};
+
+const entRec = e => ({
+  id: e.id, cat: e.cat, title: e.title, createdAt: e.createdAt, lastTs: e.lastTs,
+  seg: e.seg, del: e.del || 0, tu: e.tu || 0, cu: e.cu || 0, h: e.h, c: e.c
+});
+
+// Log sırası kalıcıdır: ord=0 listenin en üstündeki logdur.
+function assignLogOrder(e) {
+  (e.logs || []).forEach((l, i) => { l.ord = i; });
+}
+
+function normalizeLogOrder(e) {
+  const logs = e.logs || [];
+  const hasOrder = logs.length > 0 && logs.every(l => Number.isFinite(l.ord));
+  if (hasOrder) {
+    logs.sort((a, b) => (a.ord - b.ord) || (b.ts - a.ts) || String(b.id).localeCompare(String(a.id)));
+  } else {
+    // Eski verilerde sıralama bilgisi yoksa yeni/son log en üstte.
+    logs.sort((a, b) => (b.ts - a.ts) || String(b.id).localeCompare(String(a.id)));
+  }
+  assignLogOrder(e);
+}
+
+function save(o) {
+  return DB.tx(['ents', 'logs', 'cats', 'meta'], (E, L, C, M) => {
+    (o.ents || []).forEach(e => E.put(entRec(e)));
+    (o.logs || []).forEach(l => L.put(l));
+    (o.cats || []).forEach(c => C.put(c));
+    M.put({ key: 'dirty', value: [...S.dirty] });
+    M.put({ key: 'segs', value: S.segs });
+    M.put({ key: 'nextId', value: S.nextId });
+    M.put({ key: 'm', value: S.meta });
+  }).catch(err => {
+    S.err = 'Yerel kayıt hatası: ' + (err && err.message || err);
+    throw err;
+  });
+}
+
+/* ===================== MODEL ===================== */
+function derive(e) {
+  const c = [0, 0, 0, 0];
+  let last = e.createdAt;
+  let fullText = e.title + ' ' + e.id + ' ' + catName(e.cat);
+  for (let i = 0; i < e.logs.length; i++) {
+    const l = e.logs[i];
+    if (l.del) continue;
+    c[(TONES[l.tone] || TONES.notr).ix]++;
+    if (l.ts > last) last = l.ts;
+    fullText += ' ' + l.text;
+  }
+  e.c = c;
+  e.lastTs = last;
+  e.tokens = tokenize(fullText);
+  e.h = fullText;
+  fin(e);
+}
+
+function fin(e) {
+  const c = e.c;
+  e.n = c[0] + c[1] + c[2] + c[3];
+  e.tm = (c[0] ? 1 : 0) | (c[1] ? 2 : 0) | (c[2] ? 4 : 0) | (c[3] ? 8 : 0);
+}
+
+const segCat = s => s.replace(/-\d+$/, '');
+
+function pickSeg(cat) {
+  let n = 0;
+  for (const k in S.segs) {
+    const m = k.match(/^(.*)-(\d+)$/);
+    if (m && m[1] === cat) n = Math.max(n, +m[2]);
+  }
+  if (!n) n = 1;
+  const name = cat + '-' + String(n).padStart(4, '0');
+  const i = S.segs[name];
+  return (i && i.bytes >= CONFIG.chunkBytes) ? cat + '-' + String(n + 1).padStart(4, '0') : name;
+}
+
+function mark(seg, b) {
+  S.dirty.add(seg);
+  S.dv[seg] = (S.dv[seg] || 0) + 1;
+  const i = S.segs[seg] || (S.segs[seg] = { sha: '', bytes: 0 });
+  i.bytes += b || 0;
+}
+
+async function newEntity(cat, title, items) {
+  const now = Date.now();
+  const e = { id: S.nextId++, cat, title, createdAt: now, tu: now, del: 0, seg: pickSeg(cat), logs: [] };
+  // Satırlar sondan başa doğru okunur: ilk satır en son (en yeni) eklenmiş sayılır,
+  // böylece listede yazıldığı sırayla, en üstte kalır. Sıra (ord) açıkça yazılır.
+  const n = (items || []).length;
+  const ls = (items || []).map((it, i) => ({ id: uid(), eid: e.id, ts: now + (n - i), tone: it.tone, text: it.text, ord: i }));
+  e.logs = ls;
+  normalizeLogOrder(e);
+  derive(e);
+  S.ents.set(e.id, e);
+  S.ver++;
+  S.sortedCache = null;
+  mark(e.seg, 160 + title.length + ls.reduce((a, l) => a + l.text.length * 1.2 + 70, 0));
+  await save({ ents: [e], logs: ls });
+  scheduleSync();
+  return e;
+}
+
+async function addLogs(e, items) {
+  const now = Date.now(), n = items.length, ls = [];
+  // Yeni loglar en başa eklenir ve sıra kalıcı olarak yazılır.
+  // Birden fazla log gelirse sondan başa okunur: ilk madde en üstte kalır.
+  for (let i = n - 1; i >= 0; i--) {
+    const it = items[i];
+    const l = { id: uid(), eid: e.id, ts: now + (n - 1 - i), tone: it.tone, text: it.text };
+    e.logs.unshift(l);
+    ls.push(l);
+  }
+  assignLogOrder(e);
+  derive(e);
+  S.ver++;
+  mark(e.seg, ls.reduce((a, l) => a + l.text.length * 1.2 + 70, 0));
+  await save({ ents: [e], logs: e.logs });
+  scheduleSync();
+}
+
+async function reorderLogs(e, sourceId, targetId, afterTarget) {
+  const visible = e.logs.filter(l => !l.del);
+  const fromIdx = visible.findIndex(l => l.id === sourceId);
+  const targetIdx = visible.findIndex(l => l.id === targetId);
+  if (fromIdx < 0 || targetIdx < 0 || sourceId === targetId) return;
+
+  const item = visible.splice(fromIdx, 1)[0];
+  let insertIdx = targetIdx;
+  if (fromIdx < targetIdx) insertIdx--;
+  if (afterTarget) insertIdx++;
+  insertIdx = Math.max(0, Math.min(visible.length, insertIdx));
+  visible.splice(insertIdx, 0, item);
+
+  // Silinmiş logların yeri görünmez; aktif logların sırası ayrı ve deterministik tutulur.
+  const byId = new Map(visible.map((l, i) => [l.id, { log: l, ord: i }]));
+  e.logs = e.logs.map(l => {
+    const hit = byId.get(l.id);
+    if (hit) l.ord = hit.ord;
+    return l;
+  });
+  e.logs.sort((a, b) => {
+    if (!!a.del !== !!b.del) return a.del ? 1 : -1;
+    return (a.ord ?? 0) - (b.ord ?? 0) || (b.ts - a.ts) || String(b.id).localeCompare(String(a.id));
+  });
+
+  // Sıra değişikliği senkronizasyonda da bir güncelleme olarak görülmeli.
+  const stamp = Date.now();
+  visible.forEach((l, i) => { l.ord = i; l.mu = stamp + i; });
+
+  S.ver++;
+  mark(e.seg, 0);
+  await save({ ents: [e], logs: e.logs });
+  scheduleSync();
+}
+
+async function editLog(e, l, tone, text) {
+  l.tone = tone;
+  l.text = text;
+  l.mu = Date.now();
+  derive(e);
+  S.ver++;
+  mark(e.seg, text.length);
+  await save({ ents: [e], logs: [l] });
+  scheduleSync();
+}
+
+async function delLog(e, l) {
+  l.del = 1;
+  l.mu = Date.now();
+  derive(e);
+  S.ver++;
+  mark(e.seg, 0);
+  await save({ ents: [e], logs: [l] });
+  scheduleSync();
+}
+
+async function setTitle(e, t) {
+  e.title = t;
+  e.tu = Date.now();
+  derive(e);
+  S.ver++;
+  mark(e.seg, 0);
+  await save({ ents: [e] });
+  scheduleSync();
+}
+
+async function changeCat(e, newCat) {
+  if (!S.cats.has(newCat) || e.cat === newCat) return;
+  const now = Date.now();
+  e.cat = newCat;
+  // Kategori değişikliği KENDİ zaman damgasıyla (cu) izlenir: başlık/diğer
+  // değişiklikler tu'yu ilerletse bile kategori eski haline dönmez.
+  e.cu = now;
+  e.tu = now;
+  derive(e);
+  S.ver++;
+  // Kayıt dosyalar arasında TAŞINMAZ: seg aynı kalır, kategori yalnızca
+  // kaydın kendi cat alanında güncellenir ve o segment yeniden yazılır.
+  mark(e.seg, 0);
+  await save({ ents: [e] });
+  scheduleSync();
+}
+
+async function delEnt(e) {
+  e.del = 1;
+  e.tu = Date.now();
+  S.ver++;
+  S.sortedCache = null;
+  mark(e.seg, 0);
+  await save({ ents: [e] });
+  scheduleSync();
+}
+
+async function addCat(name) {
+  name = name.trim();
+  if (!name) return false;
+  if (liveCats().some(c => norm(c.name) === norm(name))) {
+    alert('Bu kategori zaten var.');
+    return false;
+  }
+  const b = norm(name).replace(/[^a-z0-9]+/g, '') || 'kat';
+  let id = b, i = 2;
+  while (S.cats.has(id)) id = b + (i++);
+  const maxOrder = liveCats().reduce((m, c) => Math.max(m, c.order ?? 0), -1);
+  const c = { id, name, order: maxOrder + 1, createdAt: Date.now(), nu: Date.now() };
+  S.cats.set(id, c);
+  S.ver++;
+  mark('manifest', 0);
+  await save({ cats: [c] });
+  scheduleSync();
+  return true;
+}
+
+function catChanged(ids) {
+  const set = new Set(ids), es = [];
+  if (!set.size) return es;
+  for (const e of S.ents.values()) {
+    if (set.has(e.cat)) {
+      derive(e);
+      es.push(e);
+    }
+  }
+  return es;
+}
+
+async function renCat(id, name) {
+  const c = S.cats.get(id);
+  c.name = name;
+  c.nu = Date.now();
+  S.ver++;
+  const es = catChanged([id]);
+  mark('manifest', 0);
+  await save({ cats: [c], ents: es });
+  scheduleSync();
+}
+
+async function delCat(id) {
+  const c = S.cats.get(id);
+  c.del = 1;
+  c.nu = Date.now();
+  S.ver++;
+  mark('manifest', 0);
+  await save({ cats: [c] });
+  scheduleSync();
+}
+
+async function reorderCats(fromIdx, toIdx) {
+  const list = liveCats();
+  if (fromIdx === toIdx || fromIdx < 0 || toIdx < 0 || fromIdx >= list.length || toIdx >= list.length) return;
+  const item = list.splice(fromIdx, 1)[0];
+  list.splice(toIdx, 0, item);
+  list.forEach((c, idx) => {
+    c.order = idx;
+    c.nu = Date.now();
+  });
+  S.ver++;
+  mark('manifest', 0);
+  await save({ cats: list });
+  scheduleSync();
+}
+
+/* ===================== ARAMA MOTORU (KELİME DÜZEYİNDE TAM EŞLEŞME) ===================== */
+function parseTerms(qn) {
+  const seen = new Set(), o = [];
+  const words = qn.split(/[^a-z0-9]+/g);
+  for (let i = 0; i < words.length; i++) {
+    const t = words[i];
+    if (!t || seen.has(t)) continue;
+    seen.add(t);
+    o.push(t);
+  }
+  return o;
+}
+
+function getSortedList() {
+  if (!S.sortedCache || S.sortedCache.ver !== S.ver) {
+    const list = [...S.ents.values()].filter(e => !e.del && catAlive(e.cat));
+    list.sort((a, b) => (b.createdAt - a.createdAt) || (b.id - a.id));
+    S.sortedCache = { ver: S.ver, list };
+  }
+  return S.sortedCache.list;
+}
+
+function doSearch() {
+  const t0 = performance.now();
+  const u = S.ui;
+  const qn = norm(u.q);
+  const terms = parseTerms(qn);
+  const catSig = [...u.cats].sort().join(',');
+  const sig = [catSig, S.ver].join('|');
+  const inc = S.sr && S.sr.sig === sig && qn.startsWith(S.sr.qn);
+  const src = inc ? S.sr.res : getSortedList();
+
+  const selCats = u.cats;
+  const out = [];
+
+  for (let i = 0; i < src.length; i++) {
+    const e = src[i];
+    if (selCats.size > 0 && !selCats.has(e.cat)) continue;
+    if (terms.length) {
+      const tokens = e.tokens;
+      let ok = true;
+      for (let k = 0; k < terms.length; k++) {
+        const term = terms[k];
+        let matched = false;
+        for (const token of tokens) {
+          if (token.startsWith(term)) {
+            matched = true;
+            break;
+          }
+        }
+        if (!matched) {
+          ok = false;
+          break;
+        }
+      }
+      if (!ok) continue;
+    }
+    out.push(e);
+  }
+
+  S.sr = { sig, qn, res: out, terms };
+  const ms = performance.now() - t0;
+  const total = getSortedList().length;
+
+  const info = $('#info');
+  if (info) {
+    info.textContent = nf(out.length) + ' / ' + nf(total) + ' kayıt (' + ms.toFixed(1) + ' ms)';
+  }
+  renderResults();
+}
+
+function hl(text, terms) {
+  if (!terms.length) return esc(text);
+  const n = norm(text);
+  const r = [];
+  for (let k = 0; k < terms.length; k++) {
+    const t = terms[k];
+    let i = 0;
+    while ((i = n.indexOf(t, i)) >= 0) {
+      const before = i === 0 || !/[a-z0-9]/.test(n[i - 1]);
+      if (before) {
+        r.push([i, i + t.length]);
+      }
+      i += t.length;
+    }
+  }
+  if (!r.length) return esc(text);
+  r.sort((a, b) => a[0] - b[0]);
+  let o = '', p = 0;
+  for (let i = 0; i < r.length; i++) {
+    const s = r[i][0], e = r[i][1];
+    if (e <= p) continue;
+    const s2 = Math.max(s, p);
+    o += esc(text.slice(p, s2)) + '<mark>' + esc(text.slice(s2, e)) + '</mark>';
+    p = e;
+  }
+  return o + esc(text.slice(p));
+}
+
+const counts = e => TK.filter(k => e.c[TONES[k].ix]).map(k => '<span class="' + k + '">' + TONES[k].sym + e.c[TONES[k].ix] + '</span>').join(' ');
+
+// Tek satırlık arama sonucu
+function itemHtml(e, terms) {
+  return '<a class="row-item" href="#/e/' + e.id + '" data-id="' + e.id + '">'
+    + '  <span class="cat-badge">' + esc(catName(e.cat)) + '</span>'
+    + '  <span class="row-title">' + hl(e.title, terms) + ' <small class="mut">#' + e.id + '</small></span>'
+    + (e.n > 0 ? '  <span class="row-counts">' + counts(e) + '</span>' : '')
+    + '  <span class="row-date">' + dmy(e.createdAt) + '</span>'
+    + '</a>';
+}
+
+const PAGE = 50;
+let moreIO = null;
+
+function stopMore() {
+  if (moreIO) {
+    moreIO.disconnect();
+    moreIO = null;
+  }
+}
+
+// Liste sonundaki #more işaretçisi görünüme yaklaşınca sıradaki parça yüklenir (bağımlılıksız lazy loading).
+function armMore() {
+  stopMore();
+  const el = $('#more');
+  if (!el || !S.sr || S.rendered >= S.sr.res.length) return;
+  moreIO = new IntersectionObserver(es => {
+    for (let i = 0; i < es.length; i++) {
+      if (es[i].isIntersecting) { loadMore(); break; }
+    }
+  }, { rootMargin: '0px 0px 800px 0px' });
+  moreIO.observe(el);
+}
+
+function loadMore() {
+  const box = $('#res');
+  if (!box || !S.sr) return false;
+  const res = S.sr.res, from = S.rendered;
+  if (from >= res.length) return false;
+  const to = Math.min(from + PAGE, res.length);
+  let h = '';
+  for (let i = from; i < to; i++) h += itemHtml(res[i], S.sr.terms);
+  box.insertAdjacentHTML('beforeend', h);
+  S.rendered = to;
+  S.ui.shown = to;
+  if (to >= res.length) {
+    stopMore();
+  } else if (moreIO) {
+    // İşaretçi hâlâ ekrana yakınsa (kısa liste / geniş ekran) tekrar tetiklensin.
+    const el = $('#more');
+    moreIO.unobserve(el);
+    moreIO.observe(el);
+  }
+  return true;
+}
+
+// Klavye ile seçili satırı ayarlar. i < 0 seçimi kaldırır.
+function setNav(i, scroll) {
+  const box = $('#res');
+  if (!box) return;
+  const prev = S.nav >= 0 ? box.children[S.nav] : null;
+  if (prev) prev.classList.remove('active');
+  if (i < 0 || i >= S.rendered) {
+    S.nav = -1;
+    S.ui.navId = null;
+    return;
+  }
+  const el = box.children[i];
+  el.classList.add('active');
+  S.nav = i;
+  S.ui.navId = +el.dataset.id;
+  if (scroll) el.scrollIntoView({ block: 'nearest' });
+}
+
+// ↑ ↓ Enter: arama kutusundan çıkmadan sonuçlarda gezinme. İşlendiyse true döner.
+function navKey(ev) {
+  if (ev.isComposing || ev.ctrlKey || ev.metaKey || ev.altKey || ev.shiftKey) return false;
+  const k = ev.key;
+  if (k !== 'ArrowDown' && k !== 'ArrowUp' && k !== 'Enter') return false;
+  const box = $('#res');
+  if (!box || !S.sr) return false;
+
+  if (k === 'Enter') {
+    if (S.nav < 0) return false;
+    const el = box.children[S.nav];
+    if (!el || !el.dataset.id) return false;
+    S.ui.sy = scrollY;
+    location.hash = '#/e/' + el.dataset.id;
+    return true;
+  }
+
+  ev.preventDefault(); // imleç arama kutusunda başa/sona zıplamasın, sayfa kaymasın
+  if (!S.rendered) return true;
+  if (k === 'ArrowDown') {
+    if (S.nav + 1 >= S.rendered) loadMore(); // son yüklenen satırdayken devamı hemen getir
+    setNav(Math.min(S.nav + 1, S.rendered - 1), true);
+  } else if (S.nav > 0) {
+    setNav(S.nav - 1, true);
+  }
+  return true;
+}
+
+function renderResults() {
+  const box = $('#res');
+  if (!box || !S.sr) return;
+  const res = S.sr.res, n = Math.min(S.ui.shown, res.length);
+  let h = '';
+  for (let i = 0; i < n; i++) h += itemHtml(res[i], S.sr.terms);
+  box.innerHTML = h || '<p class="mut" style="text-align:center;padding:40px 0;">Kayıt bulunamadı.</p>';
+  S.rendered = n;
+  S.nav = -1;
+  if (S.ui.navId != null) {
+    const i = res.findIndex(e => e.id === S.ui.navId);
+    if (i >= 0 && i < n) setNav(i, false);
+  }
+  armMore();
+}
+
+/* ===================== DIŞA AKTARIM (XLSX) ===================== */
+const CRC = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(b) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 255] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+
+function zip(files, mime) {
+  const enc = new TextEncoder(), d = new Date();
+  const dt = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+  const dd = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+  const parts = [], cd = [];
+  let off = 0;
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i];
+    const nm = enc.encode(f.name), data = enc.encode(f.data), crc = crc32(data), sz = data.length;
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true);
+    h.setUint16(4, 20, true);
+    h.setUint16(6, 0x0800, true);
+    h.setUint16(8, 0, true);
+    h.setUint16(10, dt, true);
+    h.setUint16(12, dd, true);
+    h.setUint32(14, crc, true);
+    h.setUint32(18, sz, true);
+    h.setUint32(22, sz, true);
+    h.setUint16(26, nm.length, true);
+    h.setUint16(28, 0, true);
+    parts.push(new Uint8Array(h.buffer), nm, data);
+
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true);
+    c.setUint16(4, 20, true);
+    c.setUint16(6, 20, true);
+    c.setUint16(8, 0x0800, true);
+    c.setUint16(10, 0, true);
+    c.setUint16(12, dt, true);
+    c.setUint16(14, dd, true);
+    c.setUint32(16, crc, true);
+    c.setUint32(20, sz, true);
+    c.setUint32(24, sz, true);
+    c.setUint16(28, nm.length, true);
+    c.setUint32(42, off, true);
+    cd.push(new Uint8Array(c.buffer), nm);
+    off += 30 + nm.length + sz;
+  }
+  let cs = 0;
+  for (let i = 0; i < cd.length; i++) cs += cd[i].length;
+  const e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true);
+  e.setUint16(8, files.length, true);
+  e.setUint16(10, files.length, true);
+  e.setUint32(12, cs, true);
+  e.setUint32(16, off, true);
+  return new Blob([...parts, ...cd, new Uint8Array(e.buffer)], { type: mime });
+}
+
+const XL_STYLES = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+  + '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+  + '<numFmts count="1"><numFmt numFmtId="164" formatCode="dd.mm.yyyy\\ hh:mm"/></numFmts>'
+  + '<fonts count="5">'
+  + '<font><sz val="11"/><name val="Calibri"/></font>'
+  + '<font><b/><sz val="11"/><name val="Calibri"/></font>'
+  + '<font><sz val="11"/><color rgb="FF15803D"/><name val="Calibri"/></font>'
+  + '<font><sz val="11"/><color rgb="FFDC2626"/><name val="Calibri"/></font>'
+  + '<font><sz val="11"/><color rgb="FFB45309"/><name val="Calibri"/></font>'
+  + '</fonts>'
+  + '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>'
+  + '<fill><patternFill patternType="solid"><fgColor rgb="FFD9D9D9"/><bgColor indexed="64"/></patternFill></fill></fills>'
+  + '<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border>'
+  + '<border><left style="thin"><color auto="1"/></left><right style="thin"><color auto="1"/></right><top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom><diagonal/></border></borders>'
+  + '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+  + '<cellXfs count="8">'
+  + '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
+  + '<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf>'
+  + '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'
+  + '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyAlignment="1"><alignment horizontal="left" vertical="top"/></xf>'
+  + '<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'
+  + '<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'
+  + '<xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'
+  + '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment horizontal="left" vertical="top"/></xf>'
+  + '</cellXfs>'
+  + '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+
+function buildXlsx(list) {
+  const X = s => String(s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const col = n => {
+    let s = '';
+    n++;
+    while (n > 0) {
+      const m = (n - 1) % 26;
+      s = String.fromCharCode(65 + m) + s;
+      n = Math.floor((n - 1) / 26);
+    }
+    return s;
+  };
+  const serial = ts => (ts - new Date(ts).getTimezoneOffset() * 60000) / 86400000 + 25569;
+  const sep = '\n', LIM = 32000;
+  const HEX = { pozitif: '15803D', negatif: 'DC2626', uyari: 'B45309', notr: '000000' };
+  const SYM = { pozitif: '[+]', negatif: '[-]', uyari: '[!]', notr: '[·]' };
+  const TS = { pozitif: 4, negatif: 5, uyari: 6, notr: 2 };
+  const cS = (r, c, t, s) => '<c r="' + col(c) + r + '" t="inlineStr" s="' + s + '"><is><t xml:space="preserve">' + X(t) + '</t></is></c>';
+  const cN = (r, c, v, s) => '<c r="' + col(c) + r + '" s="' + s + '"><v>' + v + '</v></c>';
+  const cR = (r, c, runs, s) => '<c r="' + col(c) + r + '" t="inlineStr" s="' + s + '"><is>' + runs.map(x => '<r><rPr><sz val="11"/><color rgb="FF' + HEX[x[1]] + '"/><rFont val="Calibri"/></rPr><t xml:space="preserve">' + X(x[0]) + '</t></r>').join('') + '</is></c>';
+  const HD = (r, arr) => '<row r="' + r + '">' + arr.map((t, i) => cS(r, i, t, 1)).join('') + '</row>';
+
+  const per = list.map(e => {
+    const cols = [[]];
+    let len = 0;
+    for (let i = 0; i < e.logs.length; i++) {
+      const l = e.logs[i];
+      if (l.del) continue;
+      let t = SYM[l.tone] + ' ' + l.text;
+      if (t.length > LIM) t = t.slice(0, LIM - 1) + '…';
+      let cur = cols[cols.length - 1];
+      if (cur.length && len + sep.length + t.length > LIM) {
+        cols.push([]);
+        cur = cols[cols.length - 1];
+        len = 0;
+      }
+      if (cur.length) { cur.push([sep, 'notr']); len += sep.length; }
+      cur.push([t, l.tone]);
+      len += t.length;
+    }
+    return cols;
+  });
+
+  let nLog = 1;
+  for (let i = 0; i < per.length; i++) if (per[i].length > nLog) nLog = per[i].length;
+  const H1 = ['Kategori', 'ID', 'Başlık', 'Kayıt Tarihi', 'Son Hareket', 'Log Sayısı'];
+  for (let i = 0; i < nLog; i++) H1.push(i ? 'Loglar (devam ' + (i + 1) + ')' : 'Loglar');
+  const R1 = [HD(1, H1)];
+
+  list.forEach((e, i) => {
+    const r = i + 2;
+    let x = '<row r="' + r + '">' + cS(r, 0, catName(e.cat), 2) + cN(r, 1, e.id, 7) + cS(r, 2, e.title, 2) + cN(r, 3, serial(e.createdAt).toFixed(6), 3) + cN(r, 4, serial(e.lastTs).toFixed(6), 3) + cN(r, 5, e.n, 7);
+    per[i].forEach((runs, k) => { if (runs.length) x += cR(r, 6 + k, runs, 2); });
+    R1.push(x + '</row>');
+  });
+
+  const last1 = list.length + 1, lc1 = col(H1.length - 1);
+  const w1 = '<col min="1" max="1" width="14" customWidth="1"/><col min="2" max="2" width="10" customWidth="1"/><col min="3" max="3" width="30" customWidth="1"/><col min="4" max="5" width="18" customWidth="1"/><col min="6" max="6" width="10" customWidth="1"/><col min="7" max="' + H1.length + '" width="90" customWidth="1"/>';
+  const head = sel => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView ' + (sel ? 'tabSelected="1" ' : '') + 'workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/><selection pane="bottomLeft"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"/>';
+  const sheet1 = head(true) + '<cols>' + w1 + '</cols><sheetData>' + R1.join('') + '</sheetData><autoFilter ref="A1:' + lc1 + last1 + '"/></worksheet>';
+
+  let sheet2 = null, last2 = 0;
+  const R2 = [HD(1, ['Kategori', 'ID', 'Başlık', 'Tarih', 'Ton', 'İçerik'])];
+  let r = 1;
+  for (let i = 0; i < list.length; i++) {
+    const e = list[i];
+    for (let j = 0; j < e.logs.length; j++) {
+      const l = e.logs[j];
+      if (l.del) continue;
+      r++;
+      const s = TS[l.tone], t = l.text.length > LIM ? l.text.slice(0, LIM - 1) + '…' : l.text;
+      R2.push('<row r="' + r + '">' + cS(r, 0, catName(e.cat), 2) + cN(r, 1, e.id, 7) + cS(r, 2, e.title, 2) + cN(r, 3, serial(l.ts).toFixed(6), 3) + cS(r, 4, TONES[l.tone].ad, s) + cS(r, 5, t, s) + '</row>');
+    }
+  }
+  last2 = r;
+  sheet2 = head(false) + '<cols><col min="1" max="1" width="14" customWidth="1"/><col min="2" max="2" width="10" customWidth="1"/><col min="3" max="3" width="30" customWidth="1"/><col min="4" max="4" width="18" customWidth="1"/><col min="5" max="5" width="10" customWidth="1"/><col min="6" max="6" width="90" customWidth="1"/></cols><sheetData>' + R2.join('') + '</sheetData><autoFilter ref="A1:F' + last2 + '"/></worksheet>';
+
+  const files = [];
+  const ct = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>';
+  const wb = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Kayıtlar" sheetId="1" r:id="rId1"/><sheet name="Loglar" sheetId="2" r:id="rId2"/></sheets><definedNames><definedName name="_xlnm._FilterDatabase" localSheetId="0" hidden="1">\'Kayıtlar\'!$A$1:$' + lc1 + '$' + last1 + '</definedName><definedName name="_xlnm._FilterDatabase" localSheetId="1" hidden="1">\'Loglar\'!$A$1:$F$' + last2 + '</definedName></definedNames></workbook>';
+  const wr = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>';
+  const rr = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+
+  files.push({ name: '[Content_Types].xml', data: ct }, { name: '_rels/.rels', data: rr }, { name: 'xl/workbook.xml', data: wb }, { name: 'xl/_rels/workbook.xml.rels', data: wr }, { name: 'xl/styles.xml', data: XL_STYLES }, { name: 'xl/worksheets/sheet1.xml', data: sheet1 }, { name: 'xl/worksheets/sheet2.xml', data: sheet2 });
+  return zip(files, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+}
+
+function download(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+}
+
+function exportExcel() {
+  const list = S.sr && S.sr.res.length ? S.sr.res : getSortedList();
+  if (!list.length) {
+    alert('Aktarılacak kayıt bulunamadı.');
+    return;
+  }
+  const u = S.ui;
+  const slug = norm(u.q).replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 30);
+  const cat = u.cats.size === 1 ? norm(catName([...u.cats][0])).replace(/[^a-z0-9]+/g, '') : 'Portfoy';
+  const name = [cat, slug].filter(Boolean).join('_') + '_' + iso(Date.now()) + '.xlsx';
+  const blob = buildXlsx(list);
+  download(blob, name);
+}
+
+/* ===================== GITHUB SENKRON ===================== */
+// Depo alanından sahip adı (yalnızca ekranda ipucu için; dosyaya yazılmaz).
+const ghOwner = () => (CONFIG.repo.split('/')[0] || 'KULLANICI');
+const basePath = () => CONFIG.path.replace(/^\/+|\/+$/g, '');
+const pre = () => { const b = basePath(); return b ? b + '/' : ''; };
+const encPath = p => p.split('/').map(encodeURIComponent).join('/');
+
+function gh(method, url, body, accept) {
+  const h = {
+    Authorization: 'Bearer ' + CONFIG.pat,
+    Accept: accept || 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+  if (body) h['Content-Type'] = 'application/json';
+  return fetch('https://api.github.com/repos/' + CONFIG.repo + url, {
+    method, cache: 'no-store', headers: h, body: body ? JSON.stringify(body) : undefined
+  });
+}
+
+async function ghErr(r) {
+  let m = '';
+  try { m = (await r.json()).message; } catch (e) {}
+  return new Error('GitHub ' + r.status + (m ? ': ' + m : ''));
+}
+
+function b64(blob) {
+  return new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => res(fr.result.slice(fr.result.indexOf(',') + 1));
+    fr.onerror = () => rej(fr.error);
+    fr.readAsDataURL(blob);
+  });
+}
+
+async function listRemote() {
+  const r = await gh('GET', '/git/trees/' + encPath(CONFIG.branch) + '?recursive=1');
+  if (r.status === 404 || r.status === 409) return [];
+  if (!r.ok) throw await ghErr(r);
+  const j = await r.json();
+  if (j.truncated) throw new Error('Depo ağacı çok büyük.');
+  return j.tree.filter(t => t.type === 'blob');
+}
+
+async function getJSON(path) {
+  const r = await gh('GET', '/contents/' + encPath(path) + '?ref=' + encodeURIComponent(CONFIG.branch), null, 'application/vnd.github.raw+json');
+  if (!r.ok) throw await ghErr(r);
+  return JSON.parse(await r.text());
+}
+
+const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+function mergeEntities(arr, cat, seg, markIt) {
+  const E = new Set(), L = [], C = [];
+  for (let i = 0; i < arr.length; i++) {
+    const r = arr[i];
+    // Kaydın KENDİ cat alanı esastır. Dosyanın kategorisi (klasör adı) yalnızca
+    // depolama etiketidir; yalnızca alan yoksa (eski dosyalar) ona düşülür.
+    const rcat = typeof r.cat === 'string' && r.cat ? r.cat : '';
+    const fcat = cat || '';
+    const c = rcat || fcat;
+    if (!c || r.id == null) continue;
+    if (!S.cats.has(c)) {
+      const nc = { id: c, name: c, order: S.cats.size, createdAt: Date.now(), nu: 0 };
+      S.cats.set(c, nc);
+      C.push(nc);
+    }
+    let e = S.ents.get(r.id), ch = false;
+    if (!e) {
+      e = {
+        id: r.id, cat: c, title: String(r.title || ''), createdAt: r.createdAt || Date.now(),
+        seg: r.seg || seg || pickSeg(c), del: r.del || 0, tu: r.tu || 0,
+        cu: r.cu || r.tu || 0, logs: []
+      };
+      S.ents.set(e.id, e);
+      ch = true;
+    } else {
+      // Başlık/silme: tu ile son yazan kazanır.
+      if ((r.tu || 0) > (e.tu || 0)) {
+        e.title = String(r.title || '');
+        e.del = r.del || 0;
+        e.tu = r.tu;
+        ch = true;
+      }
+      // Kategori: yalnızca kaydın kendi cat alanı varsa ve cu daha yeniyse uygulanır.
+      // Böylece "A taşıdı, B başlığı değiştirdi" durumunda A'nın kategorisi korunur.
+      const rcu = r.cu || 0, lcu = e.cu || 0;
+      if (rcat && (rcu > lcu || (rcu === lcu && rcat !== e.cat && rcat < e.cat))) {
+        e.cat = rcat;
+        if (rcu > lcu) e.cu = rcu;
+        ch = true;
+      } else if (!rcat && !S.cats.has(e.cat) && fcat) {
+        // Eski biçim dosya + geçersiz yerel kategori: dosya kategorisine düş.
+        e.cat = fcat;
+        ch = true;
+      }
+    }
+    if (r.id >= S.nextId) S.nextId = r.id + 1;
+    const have = new Map();
+    for (let j = 0; j < e.logs.length; j++) have.set(e.logs[j].id, e.logs[j]);
+    for (let j = 0; j < (r.logs || []).length; j++) {
+      const rl = r.logs[j];
+      const l = have.get(rl.id);
+      if (!l) {
+        const n = { id: rl.id, eid: e.id, ts: rl.ts, tone: TONES[rl.tone] ? rl.tone : 'notr', text: String(rl.text), mu: rl.mu || 0, del: rl.del || 0 };
+        if (Number.isFinite(rl.ord)) n.ord = rl.ord;
+        e.logs.push(n);
+        have.set(n.id, n);
+        L.push(n);
+        ch = true;
+      } else if ((rl.mu || 0) > (l.mu || 0) || (!Number.isFinite(l.ord) && Number.isFinite(rl.ord))) {
+        l.tone = TONES[rl.tone] ? rl.tone : 'notr';
+        l.text = String(rl.text);
+        l.del = rl.del || 0;
+        l.mu = rl.mu || 0;
+        if (Number.isFinite(rl.ord)) l.ord = rl.ord;
+        L.push(l);
+        ch = true;
+      }
+    }
+    if (ch) {
+      normalizeLogOrder(e);
+      derive(e);
+      E.add(e);
+      if (markIt) mark(e.seg, 0);
+    }
+  }
+  return { E: [...E], L, C };
+}
+
+function mergeCats(list) {
+  const out = [];
+  for (let i = 0; i < (list || []).length; i++) {
+    const c = list[i];
+    const l = S.cats.get(c.id);
+    if (!l || (c.nu || 0) > (l.nu || 0)) {
+      const n = { id: c.id, name: c.name, order: c.order ?? (l ? l.order : S.cats.size), createdAt: c.createdAt || 1, nu: c.nu || 0 };
+      if (c.del) n.del = 1;
+      S.cats.set(c.id, n);
+      out.push(n);
+    }
+  }
+  return out;
+}
+
+async function pullAll() {
+  const tree = await listRemote(), p = pre();
+  let ch = false;
+  const mf = tree.find(t => t.path === p + 'manifest.json');
+  if (mf && (S.segs.manifest || {}).sha !== mf.sha) {
+    const d = await getJSON(mf.path);
+    const cs = mergeCats(d.categories);
+    const es = catChanged(cs.map(c => c.id));
+    const i = S.segs.manifest || (S.segs.manifest = { sha: '', bytes: 0 });
+    i.sha = mf.sha;
+    i.bytes = mf.size;
+    await save({ cats: cs, ents: es });
+    ch = true;
+  }
+  const re = new RegExp('^' + escRe(p) + '([^/]+)/([^/]+)\\.json$');
+  for (let i = 0; i < tree.length; i++) {
+    const t = tree[i];
+    const m = t.path.match(re);
+    if (!m) continue;
+    const seg = m[2];
+    if ((S.segs[seg] || {}).sha === t.sha) continue;
+    const d = await getJSON(t.path);
+    const r = mergeEntities(d.entities || [], d.cat || m[1], seg, false);
+    const item = S.segs[seg] || (S.segs[seg] = { sha: '', bytes: 0 });
+    item.sha = t.sha;
+    item.bytes = t.size;
+    await save({ ents: r.E, logs: r.L, cats: r.C });
+    if (r.E.length) ch = true;
+  }
+  if (ch) {
+    S.ver++;
+    S.sortedCache = null;
+  }
+  return ch;
+}
+
+/* Bir kaydın uzak dosya gösterimi.
+   - cat HER ZAMAN yazılır: kategori kaydın kendi alanıdır, dosya/klasör adı
+     yalnızca depolama etiketidir (kayıt taşınınca dosya yeri değişmez).
+   - cu yalnızca kategori için geçerli zaman damgasıdır (alan düzeyinde birleştirme).
+   - seg yalnızca tam yedekte yazılır; segment dosyalarında gereksizdir. */
+const entJSON = (e, full) => JSON.stringify(Object.assign(
+  { id: e.id, cat: e.cat },
+  full ? { seg: e.seg } : {},
+  { title: e.title, createdAt: e.createdAt, tu: e.tu || 0, cu: e.cu || 0 },
+  e.del ? { del: 1 } : {},
+  { logs: e.logs.map(l => { const o = Object.assign({ id: l.id, ts: l.ts, tone: l.tone, text: l.text }, Number.isFinite(l.ord) ? { ord: l.ord } : {}); if (l.mu) o.mu = l.mu; if (l.del) o.del = 1; return o; }) }
+));
+
+function serializeSeg(seg) {
+  const rows = [];
+  for (const e of S.ents.values()) if (e.seg === seg) rows.push(e);
+  rows.sort((a, b) => a.id - b.id);
+  return '{"schema":1,"cat":' + JSON.stringify(segCat(seg)) + ',"seg":' + JSON.stringify(seg) + ',"entities":[\n' + rows.map(e => entJSON(e, false)).join(',\n') + '\n]}\n';
+}
+
+const manifestJSON = () => JSON.stringify({ schema: 1, updatedAt: Date.now(), categories: [...S.cats.values()] }, null, 1) + '\n';
+
+async function pushOne(seg) {
+  const v = S.dv[seg] || 0, isM = seg === 'manifest';
+  const path = isM ? pre() + 'manifest.json' : pre() + segCat(seg) + '/' + seg + '.json';
+  const txt = isM ? manifestJSON() : serializeSeg(seg);
+  const info = S.segs[seg] || (S.segs[seg] = { sha: '', bytes: 0 });
+  const blob = new Blob([txt]);
+  const body = { message: 'sync ' + seg + ' ' + new Date().toISOString(), content: await b64(blob), branch: CONFIG.branch };
+  if (info.sha) body.sha = info.sha;
+  const r = await gh('PUT', '/contents/' + encPath(path), body);
+  if (r.status === 409 || r.status === 422) return false;
+  if (!r.ok) throw await ghErr(r);
+  const j = await r.json();
+  info.sha = j.content.sha;
+  info.bytes = blob.size;
+  if ((S.dv[seg] || 0) === v) S.dirty.delete(seg);
+  await save({});
+  return true;
+}
+
+async function pushAll() {
+  const order = [...S.dirty].sort((a, b) => (a === 'manifest') - (b === 'manifest'));
+  for (let i = 0; i < order.length; i++) {
+    const seg = order[i];
+    let ok = false;
+    for (let k = 0; k < 3 && !ok; k++) {
+      ok = await pushOne(seg);
+      if (!ok) await pullAll();
+    }
+    if (!ok) throw new Error('Çakışma çözülemedi: ' + seg);
+  }
+}
+
+/* Tek seferlik onarım: uzaktaki tüm segment dosyalarını yereldeki güncel
+   içerikle yeniden yazar (kayıt düzeyi cat alanı olmayan eski dosyaları onarır).
+   Veri KAYBI riski yoktur: önce tüm uzak dosyalar çekilip birleştirilir
+   (son yazan kazanır), sonra yereldeki her segment gönderilir. Silme işlemleri
+   tombstone (del) olarak taşındığı için geri gelmez. */
+async function repushAll() {
+  if (!CONFIG.pat) { alert('GitHub PAT girilmemiş: yerel moddasınız.'); return false; }
+  if (S.syncing) { S.again = true; return false; }
+  clearTimeout(S.timer);
+  S.timer = null;
+  S.syncing = true;
+  S.err = '';
+  paintSync();
+  try {
+    // 1) Uzak durumu tazele: sha'lar geçersiz kılınır, yeniden çekilir ve birleştirilir.
+    for (const k in S.segs) S.segs[k].sha = '';
+    await pullAll();
+    // 2) Yerelde kaydı olan her segmenti + manifesti yeniden gönder.
+    const segs = new Set(['manifest']);
+    for (const e of S.ents.values()) if (e.seg) segs.add(e.seg);
+    for (const s of segs) mark(s, 0);
+    await pushAll();
+    S.meta.lastSync = Date.now();
+    await save({});
+    S.again = false;
+    refresh();
+  } catch (e) {
+    S.err = e.message || String(e);
+  }
+  S.syncing = false;
+  paintSync();
+  return !S.err;
+}
+
+function syncStatus() {
+  if (!CONFIG.pat) return 'Yerel mod: PAT girilmemiş. Veriler yalnızca bu cihazda saklanır.';
+  if (S.syncing) return 'Senkronize ediliyor…';
+  if (S.err) return 'Hata: ' + S.err;
+  return (S.meta.lastSync ? 'Son senkron: ' + dmy(S.meta.lastSync) : 'Henüz senkronlanmadı')
+    + (S.dirty.size ? ' · gönderilecek değişiklik var' : '');
+}
+
+// Ana ekrandaki kısa durum göstergesi (boşsa gösterilmez).
+function pendingStatus() {
+  if (!CONFIG.pat) return '';
+  if (S.syncing) return 'Eşitleniyor…';
+  if (S.err) return 'Eşitleme hatası';
+  if (S.dirty.size) return 'Gönderilecek ' + S.dirty.size + ' değişiklik var';
+  return '';
+}
+
+function paintSync() {
+  const el = $('#gh-status');
+  if (el) {
+    el.textContent = syncStatus();
+    el.className = CONFIG.pat && S.err && !S.syncing ? 'negatif' : 'mut';
+  }
+  const p = $('#gh-pending');
+  if (p) {
+    const t = pendingStatus();
+    p.textContent = t;
+    p.className = 'pending-tag' + (S.err && !S.syncing ? ' negatif' : (S.dirty.size || S.syncing ? ' warn' : ''));
+    p.style.display = t ? 'block' : 'none';
+  }
+}
+
+function scheduleSync() {
+  paintSync();
+  if (!CONFIG.pat || S.timer) return;
+  let mx = 0;
+  for (const k of S.dirty) mx = Math.max(mx, (S.segs[k] || {}).bytes || 0);
+  const d = mx < 1e6 ? 8000 : mx < 1e7 ? 30000 : 120000;
+  S.timer = setTimeout(() => { S.timer = null; runSync(); }, d);
+}
+
+async function runSync() {
+  if (!CONFIG.pat) return;
+  if (S.syncing) { S.again = true; return; }
+  clearTimeout(S.timer);
+  S.timer = null;
+  S.syncing = true;
+  S.err = '';
+  paintSync();
+  try {
+    if (await pullAll()) refresh();
+    await pushAll();
+    S.meta.lastSync = Date.now();
+    await save({});
+  } catch (e) {
+    S.err = e.message || String(e);
+  }
+  S.syncing = false;
+  paintSync();
+  if (S.err) {
+    if (!S.timer) S.timer = setTimeout(() => { S.timer = null; runSync(); }, 60000);
+  } else if (S.again || S.dirty.size) {
+    S.again = false;
+    scheduleSync();
+  }
+}
+
+function refresh() {
+  const h = location.hash;
+  if (!h || h === '#/') { if ($('#q')) doSearch(); }
+  else if (h === '#/kat') viewCats();
+}
+
+/* ===================== YEDEK / TEST VERİSİ ===================== */
+function backupBlob() {
+  const rows = [...S.ents.values()].sort((a, b) => a.id - b.id).map(e => entJSON(e, true));
+  return new Blob(['{"schema":1,"exportedAt":' + Date.now() + ',"categories":' + JSON.stringify([...S.cats.values()]) + ',"entities":[\n', rows.join(',\n'), '\n]}\n'], { type: 'application/json' });
+}
+
+async function importBackup(txt) {
+  const d = JSON.parse(txt);
+  if (!d || !Array.isArray(d.entities)) throw new Error('Geçersiz yedek dosyası');
+  const cs = mergeCats(d.categories);
+  if (cs.length) mark('manifest', 0);
+  const r = mergeEntities(d.entities, null, null, true);
+  const es = new Set([...r.E, ...catChanged(cs.map(c => c.id))]);
+  S.ver++;
+  S.sortedCache = null;
+  await save({ ents: [...es], logs: r.L, cats: [...cs, ...r.C] });
+  scheduleSync();
+  return r.E.length;
+}
+
+const D_IL = ['Muğla', 'Bodrum', 'Milas', 'Fethiye', 'Marmaris', 'Datça', 'Antalya', 'Kaş', 'İzmir', 'Çeşme', 'Urla', 'Ankara', 'Bursa', 'Aydın', 'Didim'];
+const D_AD = ['Ahmet', 'Mehmet', 'Ayşe', 'Fatma', 'Mustafa', 'Zeynep', 'Ali', 'Elif', 'Hasan', 'Emine', 'Hüseyin', 'Selin', 'İbrahim', 'Deniz', 'Murat'];
+const D_SOY = ['Yılmaz', 'Kaya', 'Demir', 'Çelik', 'Şahin', 'Yıldız', 'Öztürk', 'Aydın', 'Arslan', 'Doğan'];
+const D_LOG = {
+  arsa: [
+    ['pozitif', 'Denize sıfır'], ['pozitif', 'Müstakil tapu'], ['pozitif', 'Yola cepheli, elektrik su mevcut'],
+    ['negatif', 'Tapuda şerh var'], ['negatif', 'Hisseli tapu'], ['uyari', 'İmar durumu belirsiz'],
+    ['uyari', 'Malik satışa temkinli'], ['notr', 'Ada {n} Parsel {m}'], ['notr', 'Metrekare: {a}'],
+    ['notr', 'Satış fiyatı {p} TL'], ['notr', '{il} merkeze 15 dk']
+  ],
+  musteri: [
+    ['notr', 'İrtibat Numarası: 05{t}'], ['pozitif', '{il} çevresi denize yakın arsa arıyor'],
+    ['notr', 'Bütçesi {p} lira'], ['negatif', 'Tekrar aranmak istemiyor.'], ['uyari', 'Kararı eşine bağlı'],
+    ['pozitif', 'Peşin ödeme yapabilir'], ['notr', '{il} bölgesine bakıldı']
+  ],
+  emlakci: [
+    ['notr', 'Ofis: {il} merkez'], ['notr', 'Telefon: 05{t}'], ['pozitif', 'Hızlı geri dönüş yapıyor'],
+    ['negatif', 'Fiyat şişiriyor'], ['uyari', 'Yetki belgesi kontrol edilecek'], ['pozitif', '{il} bölgesinde portföyü geniş'],
+    ['notr', 'Komisyon %2']
+  ],
+  diger: [
+    ['notr', 'Not: {il} ziyareti planlandı'], ['uyari', 'Belge bekleniyor'], ['pozitif', 'Görüşme olumlu geçti'],
+    ['negatif', 'Randevu iptal edildi'], ['notr', 'Telefon: 05{t}']
+  ]
+};
+
+const rnd = n => Math.floor(Math.random() * n);
+const pick = a => a[rnd(a.length)];
+
+function demoText(t) {
+  return t.replace(/\{(\w+)\}/g, (m, k) =>
+    k === 'il' ? pick(D_IL) :
+    k === 'n' ? rnd(900) + 1 :
+    k === 'm' ? rnd(90) + 1 :
+    k === 'a' ? (rnd(90) * 50 + 300) :
+    k === 'p' ? nf((rnd(40) + 1) * 250000) :
+    k === 't' ? String(rnd(1e9)).padStart(9, '0').replace(/(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4') : m
+  );
+}
+
+async function genDemo(n, msg) {
+  const cats = liveCats();
+  if (!cats.length) throw new Error('Kategori yok.');
+  const now = Date.now();
+  let done = 0;
+  while (done < n) {
+    const es = [], ls = [], m = Math.min(1000, n - done);
+    for (let i = 0; i < m; i++) {
+      const cObj = pick(cats);
+      const cat = cObj.id;
+      const created = now - rnd(730 * 86400000);
+      const title = cat === 'arsa' ? pick(D_IL) + ' ' + pick(['Merkez', 'Sahil', 'Yalı', 'Tepe', 'Çamlık']) + ' ' + (rnd(900) + 1) + ' Ada ' + (rnd(90) + 1) + ' Parsel' : pick(D_AD) + ' ' + pick(D_SOY) + (cat === 'musteri' ? ' Bey' : '');
+      const e = { id: S.nextId++, cat, title, createdAt: created, tu: created, del: 0, seg: pickSeg(cat), logs: [] };
+      const k = 3 + rnd(8);
+      let ts = created + 60000;
+      const logPool = D_LOG[cat] || D_LOG.diger;
+      for (let j = 0; j < k; j++) {
+        ts += rnd(3 * 86400000) + 60000;
+        if (ts > now) ts = now - rnd(1e6);
+        const t = pick(logPool);
+        const l = { id: uid(), eid: e.id, ts, tone: t[0], text: demoText(t[1]) };
+        e.logs.push(l);
+        ls.push(l);
+      }
+      normalizeLogOrder(e);
+      derive(e);
+      S.ents.set(e.id, e);
+      es.push(e);
+      mark(e.seg, 160 + e.logs.reduce((a, l) => a + l.text.length * 1.2 + 70, 0));
+    }
+    await save({ ents: es, logs: ls });
+    done += m;
+    S.ver++;
+    S.sortedCache = null;
+    if (msg) msg.textContent = 'Üretiliyor ' + nf(done) + ' / ' + nf(n);
+    await new Promise(r => setTimeout(r));
+  }
+}
+
+/* ===================== GÖRÜNÜMLER ===================== */
+function route() {
+  S.edit = null;
+  stopMore();
+  const h = location.hash || '#/';
+  if (h.startsWith('#/e/')) return viewEntity(+h.slice(4));
+  if (h === '#/yeni') return viewNew();
+  if (h === '#/kat') return viewCats();
+  if (h === '#/ayar') return viewSettings();
+  return viewSearch();
+}
+
+function viewSearch() {
+  const u = S.ui, cats = liveCats();
+
+  A(
+    '<div class="top-nav">'
+    + '  <a href="#/yeni" class="icon-btn btn-primary" title="Yeni Kayıt"><span class="material-symbols-outlined">add</span></a>'
+    + '  <span id="gh-pending" class="pending-tag" style="display:none;"></span>'
+    + '  <a href="#/ayar" class="icon-btn" title="Menü / Ayarlar"><span class="material-symbols-outlined">menu</span></a>'
+    + '</div>'
+
+    + '<div class="filter-bar">'
+    + '  <div class="chips-group">'
+    + cats.map(c =>
+        '<label class="chip-item">'
+        + '<input type="checkbox" data-cat="' + esc(c.id) + '"' + (u.cats.has(c.id) ? ' checked' : '') + '>'
+        + esc(c.name)
+        + '</label>'
+      ).join('')
+    + '  </div>'
+    + '  <div id="info" class="results-info"></div>'
+    + '</div>'
+
+    + '<div id="res"></div>'
+    + '<div id="more" style="height:1px;"></div>'
+    + '<div style="height:76px;"></div>'
+
+    + '<div class="bottom-bar">'
+    + '  <div class="search-input-wrap">'
+    + '    <span class="material-symbols-outlined">search</span>'
+    + '    <input id="q" type="search" enterkeyhint="search" value="' + esc(u.q) + '" placeholder="Kayıtlarda ara: ahmet muğla…" autocomplete="off" autocapitalize="off" spellcheck="false">'
+    + '    <button class="btn-clear" id="btn-q-clear" title="Temizle" style="display:' + (u.q ? 'block' : 'none') + ';"><span class="material-symbols-outlined">close</span></button>'
+    + '  </div>'
+    + '</div>'
+  );
+
+  doSearch();
+  paintSync();
+  if (S.ui.sy) {
+    scrollTo(0, S.ui.sy);
+    S.ui.sy = 0;
+  }
+  const qEl = $('#q');
+  if (qEl) qEl.focus();
+}
+
+// Otomatik ton tespiti: İlk karakter +, -, ! ise ton atanır, değilse nötr
+const parseLog = txt => {
+  const s = txt.trim();
+  if (!s) return [];
+  const m = s.match(/^([+\-!])\s*(.+)$/);
+  if (m) {
+    const tMap = { '+': 'pozitif', '-': 'negatif', '!': 'uyari' };
+    return [{ tone: tMap[m[1]] || 'notr', text: m[2] }];
+  }
+  return [{ tone: 'notr', text: s }];
+};
+
+// Tek satırlık sürüklenebilir log maddesi
+function logHtml(l, idx) {
+  if (S.edit === l.id) {
+    return '<div class="log-row ' + l.tone + '" style="flex-direction:column;align-items:stretch;border-left-width:5px;">'
+      + '<div style="display:flex;gap:8px;align-items:center;">'
+      + '  <select id="et" style="width:auto;min-width:130px">'
+      + TK.map(k => '<option value="' + k + '"' + (k === l.tone ? ' selected' : '') + '>' + TONES[k].ad + '</option>').join('')
+      + '  </select>'
+      + '  <input id="etx" value="' + esc(l.text) + '" style="flex:1;">'
+      + '  <button data-act="save-log" data-lid="' + l.id + '" class="icon-btn-sm" title="Kaydet"><span class="material-symbols-outlined">check</span></button>'
+      + '  <button data-act="cancel-log" class="icon-btn-sm" title="İptal"><span class="material-symbols-outlined">close</span></button>'
+      + '</div>'
+      + '</div>';
+  }
+  return '<div class="log-row ' + l.tone + '" draggable="true" data-log-idx="' + idx + '" data-lid="' + l.id + '">'
+    + '  <span class="log-prefix" title="' + fdt(l.ts) + '">' + shortDate(l.ts) + '</span>'
+    + '  <span class="log-content">' + esc(l.text) + '</span>'
+    + '  <span class="log-actions">'
+    + '    <button data-act="copy-log" data-lid="' + l.id + '" class="icon-btn-sm" title="Kopyala"><span class="material-symbols-outlined">content_copy</span></button>'
+    + '    <button data-act="edit-log" data-lid="' + l.id + '" class="icon-btn-sm" title="Düzenle"><span class="material-symbols-outlined">edit</span></button>'
+    + '    <button data-act="del-log" data-lid="' + l.id + '" class="icon-btn-sm" title="Sil"><span class="material-symbols-outlined">delete</span></button>'
+    + '  </span>'
+    + '</div>';
+}
+
+function viewEntity(id) {
+  const e = S.ents.get(id);
+  if (!e || e.del) {
+    A('<p>Kayıt bulunamadı.</p><p><a href="#/" class="icon-btn" title="Geri"><span class="material-symbols-outlined">arrow_back</span></a></p>');
+    return;
+  }
+  const logs = e.logs.filter(l => !l.del);
+  A(
+    '<div class="detail-header">'
+    + '  <div class="detail-info">'
+    + '    <a href="#/" class="icon-btn" title="Geri Dön"><span class="material-symbols-outlined">arrow_back</span></a>'
+    + '    <select id="ecat" class="cat-select" title="Kategori">'
+    + liveCats().map(c => '<option value="' + esc(c.id) + '"' + (c.id === e.cat ? ' selected' : '') + '>' + esc(c.name) + '</option>').join('')
+    + '    </select>'
+    + '    <b style="font-size:18px;">' + esc(e.title) + '</b>'
+    + '    <span class="mut" style="font-size:14px;">#' + e.id + ' · ' + fdt(e.createdAt) + '</span>'
+    + (e.n > 0 ? '    <span class="row-counts">' + counts(e) + '</span>' : '')
+    + '  </div>'
+    + '  <div class="detail-actions">'
+    + '    <button data-act="edit-title" class="icon-btn" title="Başlığı Düzenle"><span class="material-symbols-outlined">edit</span></button>'
+    + '    <button data-act="del-ent" class="icon-btn" style="color:var(--neg);" title="Kaydı Sil"><span class="material-symbols-outlined">delete</span></button>'
+    + '  </div>'
+    + '</div>'
+
+    + '<div id="logs-container" style="margin-top:10px;">'
+    + (logs.map((l, i) => logHtml(l, i)).join('') || '<p class="mut" style="text-align:center;padding:40px 0;">Henüz log girilmemiş.</p>')
+    + '</div>'
+    + '<div style="height:76px;"></div>'
+
+    + '<div class="bottom-bar">'
+    + '  <form id="f-log" class="form-inline">'
+    + '    <input id="lt" placeholder="Yeni log yazın… (+, -, ! ile ton)" style="flex:1;" autocomplete="off">'
+    + '    <button class="icon-btn btn-primary" title="Log Ekle"><span class="material-symbols-outlined">add</span></button>'
+    + '  </form>'
+    + '</div>'
+  );
+
+  setupLogDnD(e);
+  const lt = $('#lt');
+  if (lt) lt.focus();
+}
+
+// Loglar için sürükle-bırak desteği
+function setupLogDnD(e) {
+  const container = $('#logs-container');
+  if (!container) return;
+  let dragSrcEl = null;
+
+  container.addEventListener('dragstart', ev => {
+    const row = ev.target.closest('.log-row');
+    if (!row || ev.target.closest('button')) return;
+    dragSrcEl = row;
+    ev.dataTransfer.effectAllowed = 'move';
+    ev.dataTransfer.setData('text/plain', row.dataset.lid);
+    row.classList.add('dragging');
+  });
+
+  container.addEventListener('dragover', ev => {
+    ev.preventDefault();
+    const row = ev.target.closest('.log-row');
+    if (!row || row === dragSrcEl) return;
+    ev.dataTransfer.dropEffect = 'move';
+    row.classList.add('drag-over');
+  });
+
+  container.addEventListener('dragleave', ev => {
+    const row = ev.target.closest('.log-row');
+    if (row) row.classList.remove('drag-over');
+  });
+
+  container.addEventListener('dragend', () => {
+    container.querySelectorAll('.log-row').forEach(r => {
+      r.classList.remove('dragging');
+      r.classList.remove('drag-over');
+    });
+  });
+
+  container.addEventListener('drop', async ev => {
+    ev.preventDefault();
+    const row = ev.target.closest('.log-row');
+    if (!row || !dragSrcEl || row === dragSrcEl) return;
+
+    const rect = row.getBoundingClientRect();
+    const afterTarget = ev.clientY > rect.top + rect.height / 2;
+    await reorderLogs(e, dragSrcEl.dataset.lid, row.dataset.lid, afterTarget);
+    viewEntity(e.id);
+  });
+}
+
+function viewNew() {
+  const cats = liveCats();
+  A(
+    '<div class="detail-header">'
+    + '  <div class="detail-info">'
+    + '    <a href="#/" class="icon-btn" title="İptal"><span class="material-symbols-outlined">arrow_back</span></a>'
+    + '    <b style="font-size:18px;">Yeni Kayıt</b>'
+    + '  </div>'
+    + '</div>'
+    + '<form id="f-new" class="log-form-wrap">'
+    + '  <div class="form-inline" style="flex-wrap:wrap;box-shadow:none;">'
+    + '    <select id="nc" required style="min-width:150px;">'
+    + cats.map(c => '<option value="' + c.id + '"' + (S.ui.cats.has(c.id) ? ' selected' : '') + '>' + esc(c.name) + '</option>').join('')
+    + '    </select>'
+    + '    <input id="nt" required placeholder="Başlık (örn: Ahmet Bey veya Muğla 120 Ada 15 Parsel)" style="flex:1;min-width:220px;" autocomplete="off">'
+    + '    <button class="icon-btn btn-primary" title="Oluştur"><span class="material-symbols-outlined">check</span></button>'
+    + '  </div>'
+    + '  <div class="row">'
+    + '    <textarea id="nl" rows="5" placeholder="İlk loglar (isteğe bağlı). Satır başına bir log; +, -, ! ile ton."></textarea>'
+    + '  </div>'
+    + '</form>'
+  );
+  autoGrow($('#nl'));
+  $('#nt').focus();
+}
+
+// Metin alanını içeriğine göre büyütür (CSS max-height sınırını aşınca kaydırma çıkar).
+function autoGrow(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = (el.scrollHeight + (el.offsetHeight - el.clientHeight)) + 'px';
+}
+
+function viewCats() {
+  const cs = liveCats();
+  const cnt = {};
+  for (const e of S.ents.values()) if (!e.del) cnt[e.cat] = (cnt[e.cat] || 0) + 1;
+
+  A(
+    '<div class="detail-header">'
+    + '  <div class="detail-info">'
+    + '    <a href="#/ayar" class="icon-btn" title="Geri"><span class="material-symbols-outlined">arrow_back</span></a>'
+    + '    <b style="font-size:18px;">Kategoriler (Sürükleyerek Sıralayın)</b>'
+    + '  </div>'
+    + '</div>'
+    + '<div id="cats-container">'
+    + cs.map((c, i) =>
+        '<div class="cat-item-row" draggable="true" data-cat-idx="' + i + '" data-cid="' + c.id + '">'
+        + '  <div class="cat-item-info">'
+        + '    <span class="material-symbols-outlined mut">drag_indicator</span>'
+        + '    <b>' + esc(c.name) + '</b>'
+        + '    <span class="mut" style="font-size:14px;">(' + nf(cnt[c.id] || 0) + ' kayıt)</span>'
+        + '  </div>'
+        + '  <div style="display:flex;gap:4px;">'
+        + '    <button data-act="cat-ren" data-cid="' + c.id + '" class="icon-btn-sm" title="Adı Değiştir"><span class="material-symbols-outlined">edit</span></button>'
+        + '    <button data-act="cat-del" data-cid="' + c.id + '" class="icon-btn-sm" style="color:var(--neg);" title="Sil"><span class="material-symbols-outlined">delete</span></button>'
+        + '  </div>'
+        + '</div>'
+      ).join('')
+    + '</div>'
+    + '<div class="log-form-wrap" style="margin-top:14px;">'
+    + '  <form id="f-cat" class="form-inline" style="box-shadow:none;">'
+    + '    <input id="cn" required placeholder="Yeni kategori adı" style="flex:1;">'
+    + '    <button class="icon-btn btn-primary" title="Kategori Ekle"><span class="material-symbols-outlined">add</span></button>'
+    + '  </form>'
+    + '</div>'
+  );
+
+  setupCatDnD();
+}
+
+function setupCatDnD() {
+  const container = $('#cats-container');
+  if (!container) return;
+  let dragSrcEl = null;
+
+  container.addEventListener('dragstart', ev => {
+    const row = ev.target.closest('.cat-item-row');
+    if (!row || ev.target.closest('button')) return;
+    dragSrcEl = row;
+    ev.dataTransfer.effectAllowed = 'move';
+    row.classList.add('dragging');
+  });
+
+  container.addEventListener('dragover', ev => {
+    ev.preventDefault();
+    const row = ev.target.closest('.cat-item-row');
+    if (!row || row === dragSrcEl) return;
+    ev.dataTransfer.dropEffect = 'move';
+    row.classList.add('drag-over');
+  });
+
+  container.addEventListener('dragleave', ev => {
+    const row = ev.target.closest('.cat-item-row');
+    if (row) row.classList.remove('drag-over');
+  });
+
+  container.addEventListener('dragend', () => {
+    container.querySelectorAll('.cat-item-row').forEach(r => {
+      r.classList.remove('dragging');
+      r.classList.remove('drag-over');
+    });
+  });
+
+  container.addEventListener('drop', async ev => {
+    ev.preventDefault();
+    const row = ev.target.closest('.cat-item-row');
+    if (!row || !dragSrcEl || row === dragSrcEl) return;
+    const fromIdx = +dragSrcEl.dataset.catIdx;
+    const toIdx = +row.dataset.catIdx;
+    await reorderCats(fromIdx, toIdx);
+    viewCats();
+  });
+}
+
+function viewSettings() {
+  let nl = 0;
+  for (const e of S.ents.values()) nl += e.logs.length;
+  const cur = (() => {
+    try { return localStorage.getItem('tema') || ''; } catch (e) { return ''; }
+  })();
+
+  A(
+    '<div class="detail-header">'
+    + '  <div class="detail-info">'
+    + '    <a href="#/" class="icon-btn" title="Geri"><span class="material-symbols-outlined">arrow_back</span></a>'
+    + '    <b style="font-size:18px;">Menü ve Ayarlar</b>'
+    + '  </div>'
+    + '</div>'
+
+    + '<div class="log-form-wrap">'
+    + '  <h4 style="margin:0 0 6px 0;">Hızlı İşlemler</h4>'
+    + '  <div class="form-inline" style="box-shadow:none;flex-wrap:wrap;">'
+    + '    <button data-act="xlsx" class="btn" style="flex:1;min-width:160px;"><span class="material-symbols-outlined">table_view</span> Excel\'e Aktar (.xlsx)</button>'
+    + '    <a href="#/kat" class="btn" style="flex:1;min-width:160px;"><span class="material-symbols-outlined">category</span> Kategori Yönetimi</a>'
+    + '  </div>'
+    + '</div>'
+
+    + '<div class="log-form-wrap">'
+    + '  <h4 style="margin:0 0 6px 0;">Görünüm Teması</h4>'
+    + '  <div class="form-inline" style="box-shadow:none;">'
+    + [['', 'Sistem'], ['light', 'Açık'], ['dark', 'Koyu']].map(t =>
+        '<label class="chip-item"><input type="radio" name="tema" value="' + t[0] + '"' + (cur === t[0] ? ' checked' : '') + '> ' + t[1] + '</label>'
+      ).join('')
+    + '  </div>'
+    + '</div>'
+
+    + '<div class="log-form-wrap">'
+    + '  <h4 style="margin:0;">Senkronizasyon (GitHub)</h4>'
+    + '  <p id="gh-status" class="mut" style="margin:0;"></p>'
+    + (location.protocol === 'file:' ?
+        '  <p class="pending-tag warn" style="text-align:left;display:block;flex:none;margin:6px 0 0 0;">'
+      + '    ⚠ Bu dosya yerel (file://) olarak açıldı. Tarayıcılar her dosya yolu için AYRI veri deposu kullanır: '
+      + 'başka bir klasördeki kopya buradaki kayıtları görmez. Kalıcı çözüm, uygulamayı sabit Pages adresinden açıp '
+      + 'veriyi GitHub ile eşitlemektir. Sabit adres: https://' + esc(ghOwner()) + '.github.io/&lt;yayın-deposu&gt;/ '
+      + '(klasör adı, depo adı ve PAT her tarayıcı kökeninde bir kez girilir).</p>' : '')
+    + '  <form id="f-gh" style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">'
+    + '    <label class="fld"><span>Depo (sahip/depo)</span>'
+    + '      <input id="gh-repo" value="' + esc(CONFIG.repo) + '" placeholder="kullanici/veri-deposu" autocomplete="off" autocapitalize="off" spellcheck="false"></label>'
+    + '    <div style="display:flex;gap:8px;flex-wrap:wrap;">'
+    + '      <label class="fld" style="flex:1;min-width:140px;"><span>Dal (branch)</span>'
+    + '        <input id="gh-branch" value="' + esc(CONFIG.branch) + '" placeholder="main" autocomplete="off" autocapitalize="off" spellcheck="false"></label>'
+    + '      <label class="fld" style="flex:1;min-width:140px;"><span>Klasör (boşsa depo kökü)</span>'
+    + '        <input id="gh-path" value="' + esc(CONFIG.path) + '" placeholder="data" autocomplete="off" autocapitalize="off" spellcheck="false"></label>'
+    + '    </div>'
+    + '    <label class="fld"><span>Kişisel erişim anahtarı (PAT)</span>'
+    + '      <div class="pat-wrap">'
+    + '        <input id="gh-pat" type="password" value="' + esc(CONFIG.pat) + '" placeholder="github_pat_…" autocomplete="new-password" autocapitalize="off" spellcheck="false">'
+    + '        <button type="button" data-act="pat-toggle" class="icon-btn" title="Göster / Gizle"><span class="material-symbols-outlined">visibility</span></button>'
+    + '      </div></label>'
+    + '    <div class="form-inline" style="box-shadow:none;flex-wrap:wrap;">'
+    + '      <button type="submit" class="btn" style="flex:1;min-width:130px;"><span class="material-symbols-outlined">save</span> Kaydet</button>'
+    + (CONFIG.pat ? '      <button type="button" data-act="gh-clear" class="btn" style="color:var(--neg);"><span class="material-symbols-outlined">key_off</span> PAT\'yi Temizle</button>' : '')
+    + '    </div>'
+    + '  </form>'
+    + (CONFIG.pat ? '<div class="form-inline" style="box-shadow:none;flex-wrap:wrap;"><button type="button" data-act="sync-now" class="btn"><span class="material-symbols-outlined">sync</span> Şimdi Senkronla</button><button type="button" data-act="pull-all" class="btn"><span class="material-symbols-outlined">cloud_download</span> GitHub\'dan Çek</button><button type="button" data-act="repush-all" class="btn"><span class="material-symbols-outlined">cloud_upload</span> Tümünü Yeniden Gönder</button></div>'
+      + '<p class="mut" style="margin:4px 0 0 0;font-size:13px;">Tümünü Yeniden Gönder: önce uzaktaki bütün dosyaları çekip birleştirir, sonra yereldeki bütün segmentleri yeniden yazar. Kategori alanı eksik eski dosyaları onarmak için bir kez kullanılır; veri silinmez.</p>' : '')
+    + '</div>'
+
+    + '<div class="log-form-wrap">'
+    + '  <h4 style="margin:0 0 6px 0;">Veri ve Yedekleme</h4>'
+    + '  <p class="mut" style="margin:4px 0;">' + liveCats().length + ' kategori · ' + nf(S.ents.size) + ' kayıt · ' + nf(nl) + ' log</p>'
+    + '  <div class="form-inline" style="box-shadow:none;margin-top:8px;">'
+    + '    <button data-act="backup" class="btn"><span class="material-symbols-outlined">download</span> Tam JSON Yedek İndir</button>'
+    + '    <button data-act="persist" class="btn"><span class="material-symbols-outlined">shield</span> Kalıcı Depolama</button>'
+    + '  </div>'
+    + '  <div style="margin-top:10px;">'
+    + '    <label style="display:block;font-size:14px;margin-bottom:4px;" class="mut">Yedekten Yükle:</label>'
+    + '    <input type="file" id="rf" accept=".json,application/json">'
+    + '  </div>'
+    + '</div>'
+
+    + (!CONFIG.pat ?
+      '<div class="log-form-wrap">'
+      + '  <h4 style="margin:0 0 6px 0;">Hızlı Test Verisi</h4>'
+      + '  <div class="form-inline" style="box-shadow:none;">'
+      + '    <input id="dn" type="number" value="1000" min="50" step="50" style="max-width:120px">'
+      + '    <button data-act="demo" class="btn"><span class="material-symbols-outlined">database</span> Test Verisi Üret</button>'
+      + '    <span id="dm" class="mut"></span>'
+      + '  </div>'
+      + '</div>' : '')
+
+    + '<div class="log-form-wrap" style="border-color:var(--neg);">'
+    + '  <h4 style="margin:0 0 6px 0;color:var(--neg);">Tüm Yerel Veriyi Sıfırla</h4>'
+    + '  <div class="form-inline" style="box-shadow:none;">'
+    + '    <button data-act="reset" class="btn" style="color:var(--neg);"><span class="material-symbols-outlined">delete_forever</span> Tüm Veriyi Sil</button>'
+    + '  </div>'
+    + '</div>'
+  );
+  paintSync();
+}
+
+/* ===================== OLAYLAR ===================== */
+function curEnt() {
+  return S.ents.get(+location.hash.slice(4));
+}
+
+document.addEventListener('input', ev => {
+  if (ev.target.id === 'nl') autoGrow(ev.target);
+  if (ev.target.id === 'q') {
+    S.ui.q = ev.target.value;
+    S.ui.shown = PAGE;
+    S.ui.navId = null;
+    const clearBtn = $('#btn-q-clear');
+    if (clearBtn) clearBtn.style.display = S.ui.q ? 'block' : 'none';
+    doSearch();
+  }
+});
+
+document.addEventListener('change', async ev => {
+  const t = ev.target, u = S.ui;
+  if (t.dataset.cat) {
+    if (t.checked) u.cats.add(t.dataset.cat);
+    else u.cats.delete(t.dataset.cat);
+    u.shown = PAGE;
+    u.navId = null;
+    doSearch();
+  } else if (t.id === 'ecat') {
+    const e = curEnt();
+    if (e) {
+      await changeCat(e, t.value);
+      viewEntity(e.id);
+    }
+  } else if (t.name === 'tema') {
+    try {
+      if (t.value) localStorage.setItem('tema', t.value);
+      else localStorage.removeItem('tema');
+    } catch (e) {}
+    if (t.value) document.documentElement.setAttribute('data-theme', t.value);
+    else document.documentElement.removeAttribute('data-theme');
+  } else if (t.id === 'rf' && t.files[0]) {
+    try {
+      const n = await importBackup(await t.files[0].text());
+      alert(n + ' kayıt birleştirildi.');
+    } catch (e) {
+      alert('Yedek yüklenemedi: ' + e.message);
+    }
+    t.value = '';
+  }
+});
+
+document.addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const id = ev.target.id;
+  if (id === 'f-log') {
+    const e = curEnt();
+    if (!e) return;
+    const items = parseLog($('#lt').value);
+    if (!items.length) return;
+    await addLogs(e, items);
+    viewEntity(e.id);
+  } else if (id === 'f-new') {
+    const cat = $('#nc').value, title = $('#nt').value.trim();
+    if (!title) return;
+    const nt = norm(title);
+    const dup = [...S.ents.values()].find(x => !x.del && x.cat === cat && norm(x.title) === nt);
+    if (dup && !confirm('Aynı başlıkta bir kayıt zaten var: ' + dup.title + ' (#' + dup.id + '). Yine de oluşturulsun mu?')) return;
+    const rawLogs = $('#nl').value.split(/\r?\n/).map(s => parseLog(s)[0]).filter(Boolean);
+    const e = await newEntity(cat, title, rawLogs);
+    location.hash = '#/e/' + e.id;
+  } else if (id === 'f-cat') {
+    if (await addCat($('#cn').value)) viewCats();
+  } else if (id === 'f-gh') {
+    const pat = $('#gh-pat').value.trim();
+    const repo = $('#gh-repo').value.trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/i, '').replace(/^\/+|\/+$/g, '');
+    const branch = $('#gh-branch').value.trim() || 'main';
+    const path = $('#gh-path').value.trim().replace(/^\/+|\/+$/g, '');
+    if (pat && !/^[\x21-\x7E]+$/.test(pat)) { alert('PAT geçersiz karakter içeriyor. Boşluk veya satır sonu olmadan yeniden yapıştırın.'); return; }
+    if (pat && !/^[\w.-]+\/[\w.-]+$/.test(repo)) { alert('Depo "sahip/depo" biçiminde olmalı. Örn: kullanici/veri-deposu'); return; }
+    const moved = repo !== CONFIG.repo || branch !== CONFIG.branch || path !== basePath();
+    if (!saveGh({ pat, repo, branch, path })) alert('Ayarlar bu tarayıcıda saklanamadı (localStorage kapalı olabilir). Yalnızca bu oturum için geçerli.');
+    if (moved) for (const k in S.segs) S.segs[k].sha = ''; // hedef değişti: eski sha'lar geçersiz
+    if (!CONFIG.pat) { clearTimeout(S.timer); S.timer = null; }
+    await save({});
+    if (CONFIG.pat) runSync();
+    viewSettings();
+  }
+});
+
+document.addEventListener('click', async ev => {
+  if (ev.target.closest('#btn-q-clear')) {
+    const qInput = $('#q');
+    if (qInput) {
+      qInput.value = '';
+      qInput.focus();
+    }
+    S.ui.q = '';
+    S.ui.shown = PAGE;
+    S.ui.navId = null;
+    viewSearch();
+    return;
+  }
+
+  const b = ev.target.closest('[data-act]');
+  if (b) {
+    const a = b.dataset.act, e = curEnt();
+    if (a === 'xlsx') {
+      exportExcel();
+    } else if (a === 'edit-title') {
+      const t = prompt('Kayıt Başlığı:', e.title);
+      if (t && t.trim()) {
+        await setTitle(e, t.trim());
+        viewEntity(e.id);
+      }
+    } else if (a === 'del-ent') {
+      if (confirm('Bu kayıt ve tüm logları silinecek. Emin misiniz?')) {
+        await delEnt(e);
+        location.hash = '#/';
+      }
+    } else if (a === 'copy-log') {
+      const l = e.logs.find(x => x.id === b.dataset.lid);
+      if (l) {
+        navigator.clipboard.writeText(l.text).then(() => {
+          const icon = b.querySelector('.material-symbols-outlined');
+          if (icon) {
+            icon.textContent = 'check';
+            setTimeout(() => { icon.textContent = 'content_copy'; }, 1200);
+          }
+        }).catch(() => {
+          prompt('Kopyalayabilirsiniz:', l.text);
+        });
+      }
+    } else if (a === 'edit-log') {
+      S.edit = b.dataset.lid;
+      viewEntity(e.id);
+    } else if (a === 'cancel-log') {
+      S.edit = null;
+      viewEntity(e.id);
+    } else if (a === 'save-log') {
+      const l = e.logs.find(x => x.id === b.dataset.lid), t = $('#etx').value.trim();
+      if (l && t) {
+        await editLog(e, l, $('#et').value, t);
+      }
+      S.edit = null;
+      viewEntity(e.id);
+    } else if (a === 'del-log') {
+      const l = e.logs.find(x => x.id === b.dataset.lid);
+      if (l && confirm('Bu log silinsin mi?')) {
+        await delLog(e, l);
+        viewEntity(e.id);
+      }
+    } else if (a === 'cat-ren') {
+      const c = S.cats.get(b.dataset.cid);
+      const n = prompt('Yeni kategori adı:', c.name);
+      if (n && n.trim()) {
+        await renCat(c.id, n.trim());
+        viewCats();
+      }
+    } else if (a === 'cat-del') {
+      const c = S.cats.get(b.dataset.cid);
+      if ([...S.ents.values()].some(x => !x.del && x.cat === c.id)) {
+        alert('Bu kategoride kayıtlar var. Önce kayıtları silmeli veya taşımalısınız.');
+      } else if (confirm('"' + c.name + '" kategorisi silinsin mi?')) {
+        await delCat(c.id);
+        viewCats();
+      }
+    } else if (a === 'pat-toggle') {
+      const i = $('#gh-pat'), show = i.type === 'password';
+      i.type = show ? 'text' : 'password';
+      b.querySelector('.material-symbols-outlined').textContent = show ? 'visibility_off' : 'visibility';
+    } else if (a === 'gh-clear') {
+      if (confirm('Kayıtlı PAT bu tarayıcıdan silinsin mi? Senkronizasyon durur, veriler yerelde kalır.')) {
+        saveGh({ pat: '' });
+        clearTimeout(S.timer);
+        S.timer = null;
+        viewSettings();
+      }
+    } else if (a === 'sync-now') {
+      if (!CONFIG.pat) alert('GitHub PAT girilmemiş: yerel moddasınız.');
+      else runSync();
+    } else if (a === 'pull-all') {
+      if (!CONFIG.pat) alert('GitHub PAT girilmemiş: yerel moddasınız.');
+      else {
+        for (const k in S.segs) S.segs[k].sha = '';
+        runSync();
+      }
+    } else if (a === 'repush-all') {
+      if (!confirm('Tüm segment dosyaları yeniden yazılacak. Önce uzaktaki veriler çekilip birleştirilir; veri silinmez. Devam edilsin mi?')) return;
+      b.disabled = true;
+      await repushAll();
+      b.disabled = false;
+      viewSettings();
+    } else if (a === 'backup') {
+      download(backupBlob(), 'portfoy_yedek_' + iso(Date.now()) + '.json');
+    } else if (a === 'persist') {
+      const ok = navigator.storage && navigator.storage.persist ? await navigator.storage.persist() : false;
+      alert(ok ? 'Kalıcı depolama izni verildi.' : 'Tarayıcı kalıcı depolama izni vermedi.');
+    } else if (a === 'demo') {
+      b.disabled = true;
+      try {
+        await genDemo(Math.max(50, +$('#dn').value || 500), $('#dm'));
+      } catch (x) {
+        alert(x.message);
+      }
+      b.disabled = false;
+      $('#dm').textContent = 'Tamamlandı.';
+    } else if (a === 'reset') {
+      if (confirm('DİKKAT: Bu tarayıcıdaki TÜM kayıtlar ve kategoriler silinecek! Devam etmek istiyor musunuz?')) {
+        DB.db.close();
+        await new Promise(r => {
+          const q = indexedDB.deleteDatabase('portfoy');
+          q.onsuccess = q.onerror = q.onblocked = () => r();
+        });
+        location.hash = '#/';
+        location.reload();
+      }
+    }
+    return;
+  }
+
+  const it = ev.target.closest('.row-item');
+  if (it) {
+    S.ui.sy = scrollY;
+    S.ui.navId = +it.dataset.id;
+  }
+});
+
+document.addEventListener('keydown', ev => {
+  const t = ev.target;
+  if ((t.id === 'q' || t === document.body) && navKey(ev)) return;
+  if (t.id === 'lt' && ev.key === 'Enter') {
+    ev.preventDefault();
+    $('#f-log').requestSubmit();
+    return;
+  }
+  if (t.id === 'q' && ev.key === 'Escape') {
+    t.value = '';
+    S.ui.q = '';
+    S.ui.shown = PAGE;
+    S.ui.navId = null;
+    doSearch();
+    return;
+  }
+  if (ev.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && $('#q')) {
+    ev.preventDefault();
+    $('#q').focus();
+  }
+});
+
+addEventListener('hashchange', route);
+addEventListener('resize', () => autoGrow($('#nl')));
+addEventListener('online', () => runSync());
+addEventListener('beforeunload', ev => {
+  if (CONFIG.pat && S.dirty.size) {
+    ev.preventDefault();
+    ev.returnValue = '';
+  }
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && CONFIG.pat && S.dirty.size) runSync();
+});
+
+/* ===================== AÇILIŞ ===================== */
+async function load() {
+  const cs = await DB.all('cats'), es = await DB.all('ents'), ls = await DB.all('logs'), ms = await DB.all('meta');
+  const M = {};
+  ms.forEach(m => { M[m.key] = m.value; });
+  S.segs = M.segs || {};
+  S.dirty = new Set(M.dirty || []);
+  S.nextId = M.nextId || 100001;
+  S.meta = M.m || {};
+
+  cs.forEach(c => {
+    if (c.order == null) c.order = 0;
+    S.cats.set(c.id, c);
+  });
+
+  if (!S.cats.size) {
+    ['Arsa', 'Müşteri', 'Emlakçı', 'Diğer'].forEach((n, i) => {
+      const id = norm(n).replace(/[^a-z0-9]+/g, '');
+      S.cats.set(id, { id, name: n, order: i, createdAt: i + 1, nu: 0 });
+    });
+    await save({ cats: [...S.cats.values()] });
+  }
+
+  es.forEach(r => { r.logs = []; S.ents.set(r.id, r); });
+  ls.forEach(l => { const e = S.ents.get(l.eid); if (e) e.logs.push(l); });
+
+  const re = S.meta.hver !== HVER;
+  const migratedLogs = [];
+  for (const e of S.ents.values()) {
+    // Geriye uyum: eski kayıtlarda kategori zaman damgası yok. Kategori en son
+    // tu ile birlikte değiştiği için tu güvenli bir başlangıç değeridir.
+    if (!e.cu) e.cu = e.tu || e.createdAt || 0;
+    normalizeLogOrder(e);
+    migratedLogs.push(...e.logs);
+    derive(e);
+    if (e.id >= S.nextId) S.nextId = e.id + 1;
+  }
+  if (re) {
+    S.meta.hver = HVER;
+    await save({ ents: [...S.ents.values()], logs: migratedLogs });
+  }
+}
+
+(async function boot() {
+  try {
+    await DB.open();
+    await load();
+  } catch (e) {
+    A('<p class="negatif">Veritabanı açılamadı: ' + esc(e && e.message || e) + '</p><p>Gizli pencere veya kısıtlı tarayıcı ayarı olabilir.</p>');
+    return;
+  }
+  route();
+  try {
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist();
+  } catch (e) {}
+  if (CONFIG.pat) runSync();
+})();
+</script>
+</body>
+</html>

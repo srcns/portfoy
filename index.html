@@ -444,22 +444,8 @@ button:active, .btn:active {
   flex-shrink: 0;
 }
 
-/* Satırın iki bölümü: sol taraf (kategori + başlık), sağ taraf (sayım + tarih).
-   Geniş ekranda tek satır; dar ekranda alt alta iner (aşağıdaki medya sorgusu). */
-.row-main {
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.row-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
+/* Tarihin kısa biçimi yalnızca dar ekranda görünür (aşağıdaki medya sorgusu). */
+.row-date .kisa { display: none; }
 
 .row-counts {
   display: flex;
@@ -632,25 +618,30 @@ input[type=file] {
 .form-inline { flex-wrap: wrap; }
 
 @media (max-width: 560px) {
-  /* Kayıt satırı: 1. satır kategori + başlık (tam genişlik, kırpılmadan),
-     2. satır log sayımları + tarih. Böylece başlık her zaman okunur. */
+  /* Kayıt satırı iki satır olur:
+     1. satır: başlık (tam genişlik, kırpılmadan, gerekirse 2-3 satıra sarar)
+     2. satır: kategori rozeti + log sayımları + kısa tarih */
   .row-item {
     flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 6px 8px;
+    align-items: center;
+    gap: 4px 8px;
   }
-  .row-main { flex: 1 1 100%; align-items: flex-start; }
   .row-title {
-    flex: 1 1 auto;
+    order: -1;              /* başlık ilk satıra */
+    flex: 1 1 100%;
     min-width: 0;
-    white-space: normal;
+    white-space: normal;    /* üç nokta ile kırpma yok */
     overflow: visible;
     text-overflow: clip;
     overflow-wrap: anywhere;
+    word-break: break-word;
     line-height: 1.3;
   }
-  .row-meta { flex: 1 1 100%; justify-content: space-between; }
-  .row-date { white-space: normal; text-align: right; }
+  .cat-badge { order: 1; }
+  .row-counts { order: 2; }
+  .row-date { order: 3; margin-left: auto; white-space: nowrap; }
+  .row-date .tam { display: none; }        /* uzun tarih gizlenir */
+  .row-date .kisa { display: inline; }     /* kısa tarih görünür */
 
   /* Log maddesi: 1. satır tarih + düğmeler, 2. satır log metni (tam genişlik) */
   .log-row {
@@ -662,10 +653,24 @@ input[type=file] {
   .log-actions { margin-left: auto; }
 
   /* Uzun metinler satır sonunda kırılsın, taşma olmasın */
-  .detail-info b { overflow-wrap: anywhere; }
+  .detail-info b { overflow-wrap: anywhere; word-break: break-word; }
   .results-info { white-space: normal; }
   .cat-select { max-width: 100%; }
   .log-form-wrap { padding: 10px; }
+}
+
+/* iOS/Safari: arama kutusunun yerleşik temizle (X) düğmesini gizle —
+   uygulamanın kendi X düğmesi kullanılıyor, ikisi üst üste binmesin. */
+input[type=search]::-webkit-search-cancel-button,
+input[type=search]::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* iOS: yatay çevirmede yazıların kendiliğinden büyümesini engelle */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 </style>
 </head>
@@ -1214,18 +1219,15 @@ function hl(text, terms) {
 
 const counts = e => TK.filter(k => e.c[TONES[k].ix]).map(k => '<span class="' + k + '">' + TONES[k].sym + e.c[TONES[k].ix] + '</span>').join(' ');
 
-// Tek satırlık arama sonucu. .row-main (kategori+başlık) ve .row-meta (sayım+tarih)
-// dar ekranda alt alta iner; geniş ekranda tek satır kalır.
+// Tek satırlık arama sonucu. Geniş ekranda tek satır; dar ekranda (CSS medya
+// sorgusu) başlık tam genişlikte ilk satıra, kategori/sayım/tarih alt satıra iner.
+// Tarih iki biçimde yazılır, hangisinin görüneceğine CSS karar verir.
 function itemHtml(e, terms) {
   return '<a class="row-item" href="#/e/' + e.id + '" data-id="' + e.id + '">'
-    + '  <span class="row-main">'
-    + '    <span class="cat-badge">' + esc(catName(e.cat)) + '</span>'
-    + '    <span class="row-title">' + hl(e.title, terms) + ' <small class="mut">#' + e.id + '</small></span>'
-    + '  </span>'
-    + '  <span class="row-meta">'
-    + (e.n > 0 ? '<span class="row-counts">' + counts(e) + '</span>' : '')
-    + '    <span class="row-date">' + dmy(e.createdAt) + '</span>'
-    + '  </span>'
+    + '  <span class="cat-badge">' + esc(catName(e.cat)) + '</span>'
+    + '  <span class="row-title">' + hl(e.title, terms) + ' <small class="mut">#' + e.id + '</small></span>'
+    + (e.n > 0 ? '  <span class="row-counts">' + counts(e) + '</span>' : '')
+    + '  <span class="row-date"><span class="tam">' + dmy(e.createdAt) + '</span><span class="kisa">' + shortDate(e.createdAt) + '</span></span>'
     + '</a>';
 }
 

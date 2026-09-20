@@ -1755,6 +1755,14 @@ function pendingStatus() {
   return '';
 }
 
+// Ayarlar ekranındaki sayı özeti. Senkron sonrası da tazelenir; böylece ilk
+// çekişten sonra ekranda yanlış (eski) sayı kalmaz.
+function veriOzet() {
+  let nl = 0;
+  for (const e of S.ents.values()) nl += e.logs.length;
+  return liveCats().length + ' kategori · ' + nf(S.ents.size) + ' kayıt · ' + nf(nl) + ' log';
+}
+
 function paintSync() {
   const el = $('#gh-status');
   if (el) {
@@ -1768,6 +1776,8 @@ function paintSync() {
     p.className = 'pending-tag' + (S.err && !S.syncing ? ' negatif' : (S.dirty.size || S.syncing ? ' warn' : ''));
     p.style.display = t ? 'block' : 'none';
   }
+  const o = $('#veri-ozet');
+  if (o) o.textContent = veriOzet();
 }
 
 function scheduleSync() {
@@ -2209,8 +2219,6 @@ function setupCatDnD() {
 }
 
 function viewSettings() {
-  let nl = 0;
-  for (const e of S.ents.values()) nl += e.logs.length;
   const cur = (() => {
     try { return localStorage.getItem('tema') || ''; } catch (e) { return ''; }
   })();
@@ -2274,7 +2282,7 @@ function viewSettings() {
 
     + '<div class="log-form-wrap">'
     + '  <h4 style="margin:0 0 6px 0;">Veri ve Yedekleme</h4>'
-    + '  <p class="mut" style="margin:4px 0;">' + liveCats().length + ' kategori · ' + nf(S.ents.size) + ' kayıt · ' + nf(nl) + ' log</p>'
+    + '  <p id="veri-ozet" class="mut" style="margin:4px 0;">' + veriOzet() + '</p>'
     + '  <div class="form-inline" style="box-shadow:none;margin-top:8px;">'
     + '    <button data-act="backup" class="btn"><span class="material-symbols-outlined">download</span> Tam JSON Yedek İndir</button>'
     + '    <button data-act="persist" class="btn"><span class="material-symbols-outlined">shield</span> Kalıcı Depolama</button>'
